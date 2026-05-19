@@ -182,7 +182,7 @@ export function DropboxView() {
       {/* Header */}
       <div>
         <h2 className="text-3xl tracking-wide" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-heading)' }}>
-          Dropbox
+          Documents
         </h2>
         <p className="text-sm tracking-wider opacity-70 mt-1" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-secondary)' }}>
           FILE STORAGE — RECEIPTS, CONTRACTS & DOCUMENTS

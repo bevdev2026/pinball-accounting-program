@@ -152,7 +152,7 @@ export function ExpenseForm({ expense, categories, machines, locationId, onSave,
               type="url"
               value={fileUrl}
               onChange={e => setFileUrl(e.target.value)}
-              placeholder="Paste a file link — full picker available in Dropbox module"
+              placeholder="Paste a file link — full picker available in Documents module"
             />
           </div>
         </div>

@@ -13,7 +13,7 @@ const navigationItems = [
   { id: 'rent', label: 'Rent & Commission', icon: Percent },
   { id: 'liabilities', label: 'Liabilities', icon: AlertCircle },
   { id: 'reports', label: 'Reports', icon: FileText },
-  { id: 'dropbox', label: 'Dropbox', icon: Folder },
+  { id: 'dropbox', label: 'Documents', icon: Folder },
 ];
 
 export function Sidebar({ activeView, onNavigate }: SidebarProps) {
