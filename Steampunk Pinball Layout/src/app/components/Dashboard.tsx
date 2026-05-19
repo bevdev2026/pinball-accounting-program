@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Sun, Moon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { KPICard } from './KPICard';
 import { RevenueChart } from './RevenueChart';
@@ -116,19 +117,19 @@ function computeChartData(
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-const inputStyle: React.CSSProperties = {
-  padding: '6px 10px',
-  backgroundColor: 'var(--bg-elevated)',
-  border: '1px solid var(--copper-dark)',
-  borderRadius: 'var(--radius-sm)',
-  color: 'var(--text-primary)',
-  fontFamily: 'var(--font-mono)',
-  fontSize: '13px',
-  outline: 'none',
-  colorScheme: 'dark',
-};
+export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onToggleTheme: () => void }) {
+  const inputStyle: React.CSSProperties = {
+    padding: '6px 10px',
+    backgroundColor: 'var(--bg-elevated)',
+    border: '1px solid var(--copper-dark)',
+    borderRadius: 'var(--radius-sm)',
+    color: 'var(--text-primary)',
+    fontFamily: 'var(--font-mono)',
+    fontSize: '13px',
+    outline: 'none',
+    colorScheme: isLight ? 'light' : 'dark',
+  };
 
-export function Dashboard() {
   const [kpiLoading, setKpiLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
 
@@ -265,13 +266,37 @@ export function Dashboard() {
 
   return (
     <div className="p-8 space-y-8">
-      <div>
-        <h2 className="text-3xl mb-2 tracking-wide" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-heading)' }}>
-          Dashboard
-        </h2>
-        <p className="text-sm tracking-wider opacity-70" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-secondary)' }}>
-          FINANCIAL OVERVIEW & OPERATIONAL STATUS
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-3xl mb-2 tracking-wide" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-heading)' }}>
+            Dashboard
+          </h2>
+          <p className="text-sm tracking-wider opacity-70" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-secondary)' }}>
+            FINANCIAL OVERVIEW & OPERATIONAL STATUS
+          </p>
+        </div>
+        <button
+          onClick={onToggleTheme}
+          title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            backgroundColor: 'var(--bg-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            color: 'var(--text-secondary)',
+            fontFamily: 'var(--font-heading)',
+            fontSize: '11px',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+          }}
+        >
+          {isLight ? <Moon size={14} /> : <Sun size={14} />}
+          {isLight ? 'Dark Mode' : 'Light Mode'}
+        </button>
       </div>
 
       <div className="grid grid-cols-4 gap-6">

@@ -152,6 +152,110 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ── Light Mode ──────────────────────────────────────────────────────────────
+   Applied when the root element carries the .light class.
+   Palette: Ivory background · Mahogany text · Patina + Verdigris highlights
+   Raw color tokens are remapped here so every component picks up the new
+   palette automatically — no component code changes required.
+   ─────────────────────────────────────────────────────────────────────────── */
+.light {
+  /* ── Raw token remaps ── */
+
+  /* Copper → Patina/Verdigris scale
+     Every var(--copper-*) reference in components resolves to patina in light mode.
+     --copper-bright stays at patina (not verdigris) so active nav text is legible on light bg. */
+  --copper-dark:   #2E4A40;
+  --copper-mid:    #3D6358;
+  --copper-base:   #4A7A68;
+  --copper-bright: #4A7A68;
+
+  /* Gold → Patina/Verdigris scale
+     Sidebar title, highlights, pale tints all shift to green */
+  --gold-dark:  #2E4A40;
+  --gold-base:  #4A7A68;
+  --gold-mid:   #6AAF95;
+  --gold-light: #8FCBB1;
+  --gold-pale:  #C8E8DC;
+
+  /* Steel → warm neutral — keeps expense charts legible without clashing */
+  --steel-dark:  #5C3A1A;
+  --steel-base:  #8B6A48;
+  --steel-mid:   #A88C6A;
+  --steel-light: #C8B090;
+  --steel-pale:  #E8D8C0;
+
+  /* Patina stays itself (already the right values, listed for explicitness) */
+  --patina-dark:  #2E4A40;
+  --patina-base:  #4A7A68;
+  --patina-light: #6AAF95;
+
+  /* Shadows — copper glow → patina glow */
+  --shadow-copper: 0 2px 8px rgba(74,122,104,0.4), inset 0 1px 0 rgba(106,175,149,0.2);
+  --shadow-gold:   0 4px 16px rgba(74,122,104,0.3), inset 0 1px 0 rgba(106,175,149,0.2);
+  --shadow-deep:   0 8px 32px rgba(0,0,0,0.12);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg:     0 16px 48px rgba(0,0,0,0.15);
+
+  /* ── Background scale — ivory to warm cream ── */
+  --bg-void:    #E8DEC8;
+  --bg-primary: #F8F0DC;
+  --bg-surface: #EEE8D0;
+  --bg-elevated:#E8DEC8;
+
+  /* ── Text scale — mahogany ── */
+  --text-heading:   #160804;
+  --text-primary:   #160804;
+  --text-secondary: #2A1209;
+  --text-muted:     #5C3820;
+  --text-chrome:    #888888;
+
+  /* ── Tailwind semantic mappings ── */
+  --background:          #F8F0DC;
+  --foreground:          #160804;
+  --card:                #EEE8D0;
+  --card-foreground:     #160804;
+  --popover:             #F0E8CC;
+  --popover-foreground:  #160804;
+
+  --primary:             #4A7A68;
+  --primary-foreground:  #F8F0DC;
+
+  --secondary:           #C8B89A;
+  --secondary-foreground:#160804;
+
+  --muted:               #E8DEC8;
+  --muted-foreground:    #5C3820;
+
+  --accent:              #6AAF95;
+  --accent-foreground:   #160804;
+
+  --destructive:            #d4183d;
+  --destructive-foreground: #ffffff;
+
+  --border:           #2E4A40;
+  --input:            #EEE8D0;
+  --input-background: #EEE8D0;
+  --switch-background:#4A7A68;
+  --ring:             #4A7A68;
+
+  /* ── Charts — all patina/verdigris family ── */
+  --chart-1: #4A7A68;
+  --chart-2: #6AAF95;
+  --chart-3: #2E4A40;
+  --chart-4: #8FCBB1;
+  --chart-5: #3D6358;
+
+  /* ── Sidebar ── */
+  --sidebar:                    #EEE8D0;
+  --sidebar-foreground:         #160804;
+  --sidebar-primary:            #4A7A68;
+  --sidebar-primary-foreground: #F8F0DC;
+  --sidebar-accent:             #DCF0E8;
+  --sidebar-accent-foreground:  #4A7A68;
+  --sidebar-border:             #2E4A40;
+  --sidebar-ring:               #6AAF95;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
