@@ -10,7 +10,7 @@ const navigationItems = [
   { id: 'machines', label: 'Machines', icon: Gamepad2 },
   { id: 'revenue', label: 'Revenue', icon: TrendingUp },
   { id: 'expenses', label: 'Expenses', icon: Receipt },
-  { id: 'rent', label: 'Rent & Commission', icon: Percent },
+  { id: 'rent', label: 'Commission', icon: Percent },
   { id: 'liabilities', label: 'Liabilities', icon: AlertCircle },
   { id: 'reports', label: 'Reports', icon: FileText },
   { id: 'dropbox', label: 'Documents', icon: Folder },
