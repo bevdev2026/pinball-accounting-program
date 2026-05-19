@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, TableProperties } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { Loan } from './types'
-import { calcLoanStatus } from './calcLoanStatus'
+import { calcLoanStatus, calcAmortizationSchedule } from './calcLoanStatus'
+import type { ScheduleRow } from './calcLoanStatus'
 import { LoanForm } from './LoanForm'
+import { AmortizationSchedule } from './AmortizationSchedule'
 import { Button } from '../ui/button'
 
 function formatMoney(v: number) {
@@ -24,6 +26,7 @@ export function LiabilitiesView() {
   const [showForm, setShowForm] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [scheduleData, setScheduleData] = useState<{ loan: Loan; rows: ScheduleRow[] } | null>(null)
 
   const fetchLoans = useCallback(async () => {
     setLoading(true)
@@ -153,14 +156,23 @@ export function LiabilitiesView() {
                     </span>
                   </div>
 
-                  {/* Delete */}
-                  <div className="flex items-center gap-1">
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setScheduleData({ loan, rows: calcAmortizationSchedule(loan) })}
+                      title="View amortization schedule"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.1em' }}
+                    >
+                      <TableProperties size={13} />
+                      Schedule
+                    </button>
+                    <div style={{ width: '1px', height: '16px', backgroundColor: 'var(--copper-dark)', opacity: 0.5 }} />
                     {isDeleting ? (
-                      <>
+                      <div className="flex items-center gap-1">
                         <span style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', color: 'var(--destructive)', letterSpacing: '0.05em' }}>DELETE?</span>
                         <button onClick={() => handleDelete(loan.id)} disabled={deleting} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--destructive)', fontFamily: 'var(--font-heading)', fontSize: '11px', padding: '2px 5px' }}>Y</button>
                         <button onClick={() => setConfirmDelete(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontFamily: 'var(--font-heading)', fontSize: '11px', padding: '2px 5px' }}>N</button>
-                      </>
+                      </div>
                     ) : (
                       <button onClick={() => setConfirmDelete(loan.id)} title="Delete loan" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--destructive)', opacity: 0.6, padding: '4px' }}>
                         <Trash2 size={14} />
@@ -220,6 +232,14 @@ export function LiabilitiesView() {
 
       {showForm && (
         <LoanForm onSave={fetchLoans} onClose={() => setShowForm(false)} />
+      )}
+
+      {scheduleData && (
+        <AmortizationSchedule
+          loan={scheduleData.loan}
+          schedule={scheduleData.rows}
+          onClose={() => setScheduleData(null)}
+        />
       )}
     </div>
   )

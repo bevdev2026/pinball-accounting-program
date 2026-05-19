@@ -17,7 +17,7 @@
 ### Dashboard
 - [x] Layout with KPI cards, charts, maintenance alerts, loans summary (mock data)
 - [x] Connect KPI cards to live Supabase data (current month + YTD: gross revenue, net revenue, expenses, net profit)
-- [x] Connect revenue charts to live data (6-month rolling: gross revenue, expenses, net profit)
+- [x] Connect revenue charts to live data with interactive time range filter (Last 30 Days / Last 3 Months / YTD / Custom date range)
 - [x] Connect maintenance alerts to live data (OVERDUE/DUE SOON within 30 days)
 - [x] Connect loans summary to live data (amortization-calculated remaining balance + total paid)
 
