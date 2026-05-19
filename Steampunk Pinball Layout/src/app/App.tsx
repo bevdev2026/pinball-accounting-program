@@ -5,6 +5,10 @@ import { Dashboard } from './components/Dashboard';
 import { MachinesView } from './components/machines/MachinesView';
 import { RevenueView } from './components/revenue/RevenueView';
 import { ExpensesView } from './components/expenses/ExpensesView';
+import { RentView } from './components/rent/RentView';
+import { LiabilitiesView } from './components/liabilities/LiabilitiesView';
+import { ReportsView } from './components/reports/ReportsView';
+import { DropboxView } from './components/dropbox/DropboxView';
 
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -20,13 +24,13 @@ export default function App() {
       case 'expenses':
         return <ExpensesView />;
       case 'rent':
-        return <PlaceholderView title="Rent & Commission" />;
+        return <RentView />;
       case 'liabilities':
-        return <PlaceholderView title="Liabilities" />;
+        return <LiabilitiesView />;
       case 'reports':
-        return <PlaceholderView title="Reports" />;
+        return <ReportsView />;
       case 'dropbox':
-        return <PlaceholderView title="Dropbox" />;
+        return <DropboxView />;
       default:
         return <Dashboard />;
     }
@@ -45,30 +49,5 @@ export default function App() {
       </div>
       <Toaster richColors position="bottom-right" />
     </>
-  );
-}
-
-function PlaceholderView({ title }: { title: string }) {
-  return (
-    <div className="p-8">
-      <h2
-        className="text-3xl mb-2 tracking-wide"
-        style={{
-          fontFamily: 'var(--font-heading)',
-          color: 'var(--text-heading)',
-        }}
-      >
-        {title}
-      </h2>
-      <p
-        className="text-sm tracking-wider opacity-70"
-        style={{
-          fontFamily: 'var(--font-heading)',
-          color: 'var(--text-secondary)',
-        }}
-      >
-        This view is under construction
-      </p>
-    </div>
   );
 }

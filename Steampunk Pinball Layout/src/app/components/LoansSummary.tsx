@@ -1,41 +1,19 @@
-interface Loan {
+export interface LoanSummaryItem {
   id: string;
   name: string;
   remainingBalance: number;
   totalPaid: number;
 }
 
-const mockLoans: Loan[] = [
-  {
-    id: '1',
-    name: 'Machine Purchase Loan',
-    remainingBalance: 15000,
-    totalPaid: 8500,
-  },
-  {
-    id: '2',
-    name: 'Equipment Financing',
-    remainingBalance: 5200,
-    totalPaid: 12300,
-  },
-  {
-    id: '3',
-    name: 'Expansion Capital',
-    remainingBalance: 28000,
-    totalPaid: 4000,
-  },
-];
+interface Props {
+  loans: LoanSummaryItem[];
+  loading: boolean;
+}
 
-export function LoansSummary() {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+const fmt = (v: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
 
+export function LoansSummary({ loans, loading }: Props) {
   return (
     <div
       className="p-6 rounded-lg border h-full"
@@ -47,85 +25,54 @@ export function LoansSummary() {
     >
       <h3
         className="text-lg mb-4 tracking-wide"
-        style={{
-          fontFamily: 'var(--font-heading)',
-          color: 'var(--text-heading)',
-        }}
+        style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-heading)' }}
       >
         Loans Summary
       </h3>
 
-      <div className="space-y-4">
-        {mockLoans.map((loan) => (
-          <div key={loan.id}>
-            <div
-              className="font-semibold mb-2"
-              style={{
-                fontFamily: 'var(--font-heading)',
-                color: 'var(--text-heading)',
-              }}
-            >
-              {loan.name}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div
-                  className="text-xs mb-1 tracking-wider"
-                  style={{
-                    fontFamily: 'var(--font-heading)',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  REMAINING
-                </div>
-                <div
-                  className="text-xl"
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontWeight: 'var(--font-weight-bold)',
-                    color: 'var(--steel-light)',
-                  }}
-                >
-                  {formatCurrency(loan.remainingBalance)}
-                </div>
-              </div>
-
-              <div>
-                <div
-                  className="text-xs mb-1 tracking-wider"
-                  style={{
-                    fontFamily: 'var(--font-heading)',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  PAID
-                </div>
-                <div
-                  className="text-xl"
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontWeight: 'var(--font-weight-bold)',
-                    color: 'var(--patina-base)',
-                  }}
-                >
-                  {formatCurrency(loan.totalPaid)}
-                </div>
-              </div>
-            </div>
-
-            {loan !== mockLoans[mockLoans.length - 1] && (
+      {loading ? (
+        <div style={{ fontFamily: 'var(--font-heading)', fontSize: '11px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>LOADING…</div>
+      ) : loans.length === 0 ? (
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-muted)', opacity: 0.7 }}>
+          No active loans recorded.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {loans.map((loan, i) => (
+            <div key={loan.id}>
               <div
-                className="h-px mt-4"
-                style={{
-                  backgroundColor: 'var(--copper-dark)',
-                  opacity: 0.3,
-                }}
-              />
-            )}
-          </div>
-        ))}
-      </div>
+                className="font-semibold mb-2"
+                style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-heading)' }}
+              >
+                {loan.name}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs mb-1 tracking-wider" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-muted)' }}>
+                    REMAINING
+                  </div>
+                  <div className="text-xl" style={{ fontFamily: 'var(--font-mono)', fontWeight: 'bold', color: 'var(--steel-light)' }}>
+                    {fmt(loan.remainingBalance)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs mb-1 tracking-wider" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-muted)' }}>
+                    PAID
+                  </div>
+                  <div className="text-xl" style={{ fontFamily: 'var(--font-mono)', fontWeight: 'bold', color: 'var(--patina-base)' }}>
+                    {fmt(loan.totalPaid)}
+                  </div>
+                </div>
+              </div>
+
+              {i < loans.length - 1 && (
+                <div className="h-px mt-4" style={{ backgroundColor: 'var(--copper-dark)', opacity: 0.3 }} />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

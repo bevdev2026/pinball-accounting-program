@@ -16,10 +16,10 @@
 
 ### Dashboard
 - [x] Layout with KPI cards, charts, maintenance alerts, loans summary (mock data)
-- [ ] Connect KPI cards to live Supabase data
-- [ ] Connect revenue charts to live data
-- [ ] Connect maintenance alerts to live data
-- [ ] Connect loans summary to live data
+- [x] Connect KPI cards to live Supabase data (current month + YTD: gross revenue, net revenue, expenses, net profit)
+- [x] Connect revenue charts to live data (6-month rolling: gross revenue, expenses, net profit)
+- [x] Connect maintenance alerts to live data (OVERDUE/DUE SOON within 30 days)
+- [x] Connect loans summary to live data (amortization-calculated remaining balance + total paid)
 
 ### Machines
 - [x] Machine list view (table) with status filter tabs
@@ -50,30 +50,30 @@
 - [x] Auto-create expense from maintenance log cost entry (built in Machines module)
 
 ### Rent & Commission
-- [ ] Agreement configuration form (flat fee / percentage / combination)
-- [ ] Agreement history view
-- [ ] Apply active agreement to gross revenue for net revenue calculation
+- [x] Agreement configuration form (flat fee / percentage / combination)
+- [x] Agreement history view
+- [ ] Apply active agreement to gross revenue for net revenue calculation (Dashboard)
 
 ### Liabilities
-- [ ] Loan entry form
-- [ ] Loan list view
-- [ ] Per-loan amortization calculation (remaining balance, total paid)
-- [ ] Loan detail view
+- [x] Loan entry form (with live payment preview)
+- [x] Loan list view (cards with progress bar)
+- [x] Per-loan amortization calculation (remaining balance, total paid)
+- [x] Loan detail view (inline on card — paid off / active status, full term breakdown)
 
 ### Reports
-- [ ] Machine revenue CSV export
-- [ ] Non-machine revenue CSV export
-- [ ] Expenses CSV export
-- [ ] Maintenance log CSV export
-- [ ] Loan summary CSV export
-- [ ] Full P&L CSV export
-- [ ] Date range filter on all exports
+- [x] Machine revenue CSV export
+- [x] Non-machine revenue CSV export
+- [x] Expenses CSV export
+- [x] Maintenance log CSV export
+- [x] Loan summary CSV export
+- [x] Full P&L CSV export
+- [x] Date range filter on all exports (presets: This Month, Last Month, Last 3 Months, This Year, All Time, Custom)
 
 ### Dropbox
-- [ ] File upload to Supabase Storage
-- [ ] File list/gallery view
-- [ ] File download / open link
-- [ ] Associate file with machine record
+- [x] File upload to Supabase Storage (bucket: "documents" — must be created in Supabase dashboard)
+- [x] File list/gallery view (table with name, machine, date, size)
+- [x] File download / open link (signed URL, 1-hour expiry)
+- [x] Associate file with machine record (optional machine dropdown on upload)
 
 ## Bugs
 
