@@ -34,11 +34,11 @@
 - [x] Upload Documentation placeholder button
 
 ### Revenue
-- [ ] Machine revenue entry form
-- [ ] Machine revenue list/table view
-- [ ] Non-machine revenue categories management
-- [ ] Non-machine revenue entry form
-- [ ] Non-machine revenue list/table view
+- [x] Machine revenue entry form (machine, collection date, period, coin/bill/card/tap breakdown)
+- [x] Machine revenue list/table with totals bar and inline edit/delete
+- [x] Non-machine revenue categories management (add/delete, seeded with Tournaments & Merchandising)
+- [x] Non-machine revenue entry form (category, date, amount, notes)
+- [x] Non-machine revenue list/table with totals bar and inline edit/delete
 
 ### Expenses
 - [ ] Expense categories management

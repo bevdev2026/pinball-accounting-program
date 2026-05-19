@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { MachinesView } from './components/machines/MachinesView';
+import { RevenueView } from './components/revenue/RevenueView';
 
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -14,7 +15,7 @@ export default function App() {
       case 'machines':
         return <MachinesView />;
       case 'revenue':
-        return <PlaceholderView title="Revenue" />;
+        return <RevenueView />;
       case 'expenses':
         return <PlaceholderView title="Expenses" />;
       case 'rent':
