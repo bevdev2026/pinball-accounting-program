@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { MachinesView } from './components/machines/MachinesView';
 import { RevenueView } from './components/revenue/RevenueView';
+import { ExpensesView } from './components/expenses/ExpensesView';
 
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -17,7 +18,7 @@ export default function App() {
       case 'revenue':
         return <RevenueView />;
       case 'expenses':
-        return <PlaceholderView title="Expenses" />;
+        return <ExpensesView />;
       case 'rent':
         return <PlaceholderView title="Rent & Commission" />;
       case 'liabilities':

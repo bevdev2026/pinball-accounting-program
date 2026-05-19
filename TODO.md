@@ -41,10 +41,13 @@
 - [x] Non-machine revenue list/table with totals bar and inline edit/delete
 
 ### Expenses
-- [ ] Expense categories management
-- [ ] Expense entry form (with optional machine link + file attachment field)
-- [ ] Expense list/table view
-- [ ] Auto-create expense from maintenance log cost entry
+- [x] Expense categories management (add/delete, 7 defaults pre-seeded)
+- [x] Expense entry form (date, category, amount, description, optional machine, optional file URL)
+- [x] Expense list/table with category filter, totals bar, category breakdown
+- [x] Inline edit/delete with confirmation
+- [x] Source badge (wrench icon) for maintenance-log auto-created expenses
+- [x] File attachment link indicator on entries that have one
+- [x] Auto-create expense from maintenance log cost entry (built in Machines module)
 
 ### Rent & Commission
 - [ ] Agreement configuration form (flat fee / percentage / combination)
