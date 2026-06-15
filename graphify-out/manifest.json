@@ -1,0 +1,507 @@
+{
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\package.json": {
+    "mtime": 1779148838.9539487,
+    "ast_hash": "f333b9452cbf8e42e3505e070f76f55e",
+    "semantic_hash": "f333b9452cbf8e42e3505e070f76f55e"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\postcss.config.mjs": {
+    "mtime": 1779142903.2836838,
+    "ast_hash": "512ddfe3175b0d294ec1e4789f27885f",
+    "semantic_hash": "512ddfe3175b0d294ec1e4789f27885f"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\App.tsx": {
+    "mtime": 1779165914.3829043,
+    "ast_hash": "9d01bd01424c94496d565cc6391e21e1",
+    "semantic_hash": "9d01bd01424c94496d565cc6391e21e1"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\Dashboard.tsx": {
+    "mtime": 1779165914.3845615,
+    "ast_hash": "b4514cff85151d952b996580cc8dada2",
+    "semantic_hash": "b4514cff85151d952b996580cc8dada2"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\KPICard.tsx": {
+    "mtime": 1779142902.8921056,
+    "ast_hash": "32b414e71b534d0476d2346becc20b8f",
+    "semantic_hash": "32b414e71b534d0476d2346becc20b8f"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\LoansSummary.tsx": {
+    "mtime": 1779153632.6685047,
+    "ast_hash": "c900d550f8dba194983e80f1cb196d01",
+    "semantic_hash": "c900d550f8dba194983e80f1cb196d01"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\MaintenanceAlerts.tsx": {
+    "mtime": 1779153619.6750922,
+    "ast_hash": "12aa1df7b7b8393c7328e663002ef5a0",
+    "semantic_hash": "12aa1df7b7b8393c7328e663002ef5a0"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\RevenueChart.tsx": {
+    "mtime": 1779159739.414527,
+    "ast_hash": "2f37e977ceee86ff6a19d6bd4e102532",
+    "semantic_hash": "2f37e977ceee86ff6a19d6bd4e102532"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\Sidebar.tsx": {
+    "mtime": 1779166747.2528896,
+    "ast_hash": "c3c736fa50aba05c824835d8d37e6de5",
+    "semantic_hash": "c3c736fa50aba05c824835d8d37e6de5"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\dropbox\\DropboxView.tsx": {
+    "mtime": 1779166196.9463973,
+    "ast_hash": "571d87f2df9b376e46ba1d13a7c47b18",
+    "semantic_hash": "571d87f2df9b376e46ba1d13a7c47b18"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\expenses\\ExpenseCategoryManager.tsx": {
+    "mtime": 1779152559.891147,
+    "ast_hash": "357814f0a88be3b0363118554bf2d1a0",
+    "semantic_hash": "357814f0a88be3b0363118554bf2d1a0"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\expenses\\ExpenseForm.tsx": {
+    "mtime": 1779166198.0010061,
+    "ast_hash": "9d5d5961a517ab053752f5ec05ffb55d",
+    "semantic_hash": "9d5d5961a517ab053752f5ec05ffb55d"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\expenses\\ExpensesView.tsx": {
+    "mtime": 1779152633.9251046,
+    "ast_hash": "e760d5df6041490243cf8158d9e0d9ae",
+    "semantic_hash": "e760d5df6041490243cf8158d9e0d9ae"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\expenses\\types.ts": {
+    "mtime": 1779152540.3338304,
+    "ast_hash": "2b97401fac58030a0f4cf45f240a0f01",
+    "semantic_hash": "2b97401fac58030a0f4cf45f240a0f01"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\figma\\ImageWithFallback.tsx": {
+    "mtime": 1779142903.2049522,
+    "ast_hash": "cf265545a904ec8dfc50a4dd25209a79",
+    "semantic_hash": "cf265545a904ec8dfc50a4dd25209a79"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\liabilities\\AmortizationSchedule.tsx": {
+    "mtime": 1779160971.7507224,
+    "ast_hash": "a4728fd72321cb4012dceb5a481ab562",
+    "semantic_hash": "a4728fd72321cb4012dceb5a481ab562"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\liabilities\\LiabilitiesView.tsx": {
+    "mtime": 1779161001.2820144,
+    "ast_hash": "6cae2e20a784fc78790604582f5e286e",
+    "semantic_hash": "6cae2e20a784fc78790604582f5e286e"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\liabilities\\LoanForm.tsx": {
+    "mtime": 1779153241.5281498,
+    "ast_hash": "25b0e03a5c087f524b4c83ece1dca32a",
+    "semantic_hash": "25b0e03a5c087f524b4c83ece1dca32a"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\liabilities\\calcLoanStatus.ts": {
+    "mtime": 1779160942.8531356,
+    "ast_hash": "593773e6c613f3df28f339274d45bd5f",
+    "semantic_hash": "593773e6c613f3df28f339274d45bd5f"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\liabilities\\types.ts": {
+    "mtime": 1779153195.0408974,
+    "ast_hash": "c72c7a1478d30d7dd424eb2b210f2c0a",
+    "semantic_hash": "c72c7a1478d30d7dd424eb2b210f2c0a"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\machines\\MachineDetail.tsx": {
+    "mtime": 1779148687.8054748,
+    "ast_hash": "cb2c1e5afe076f30ce1f43f1248be065",
+    "semantic_hash": "cb2c1e5afe076f30ce1f43f1248be065"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\machines\\MachineForm.tsx": {
+    "mtime": 1779148574.1305106,
+    "ast_hash": "a66f882361ed91e0d0bb2031d6a9f8ab",
+    "semantic_hash": "a66f882361ed91e0d0bb2031d6a9f8ab"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\machines\\MachinesView.tsx": {
+    "mtime": 1779148905.4988432,
+    "ast_hash": "eccde2350e678999fcac96c4ef325478",
+    "semantic_hash": "eccde2350e678999fcac96c4ef325478"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\machines\\MaintenanceItemForm.tsx": {
+    "mtime": 1779148598.221791,
+    "ast_hash": "cd2bc27e540d45558b9189e730a63e1c",
+    "semantic_hash": "cd2bc27e540d45558b9189e730a63e1c"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\machines\\MaintenanceLogForm.tsx": {
+    "mtime": 1779148624.5017881,
+    "ast_hash": "a14d6d8b9323e677b8e53d87b553ccc9",
+    "semantic_hash": "a14d6d8b9323e677b8e53d87b553ccc9"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\machines\\types.ts": {
+    "mtime": 1779148546.5484054,
+    "ast_hash": "6fced50aa644ae6479766b61a74fccfc",
+    "semantic_hash": "6fced50aa644ae6479766b61a74fccfc"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\rent\\RentAgreementForm.tsx": {
+    "mtime": 1779153007.3506744,
+    "ast_hash": "3573bc13d4f3c8e01b25f63a5b06342b",
+    "semantic_hash": "3573bc13d4f3c8e01b25f63a5b06342b"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\rent\\RentView.tsx": {
+    "mtime": 1779153044.586781,
+    "ast_hash": "014c5fcf3cbe759816f41447fbc8e312",
+    "semantic_hash": "014c5fcf3cbe759816f41447fbc8e312"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\rent\\types.ts": {
+    "mtime": 1779152972.526264,
+    "ast_hash": "6c5b84b662c2efb3c8788ac9cfb1bbbe",
+    "semantic_hash": "6c5b84b662c2efb3c8788ac9cfb1bbbe"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\reports\\ReportsView.tsx": {
+    "mtime": 1779153415.9978046,
+    "ast_hash": "4a1d09b94d46566dfdc2f7d26159a932",
+    "semantic_hash": "4a1d09b94d46566dfdc2f7d26159a932"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\revenue\\CategoryManager.tsx": {
+    "mtime": 1779149345.6054356,
+    "ast_hash": "61077ee8002eb14b859b1879ceca1d6e",
+    "semantic_hash": "61077ee8002eb14b859b1879ceca1d6e"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\revenue\\MachineRevenueForm.tsx": {
+    "mtime": 1779149327.2835116,
+    "ast_hash": "667b219a3eea71c23be21f082ab5e916",
+    "semantic_hash": "667b219a3eea71c23be21f082ab5e916"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\revenue\\MachineRevenueTab.tsx": {
+    "mtime": 1779149404.5843449,
+    "ast_hash": "dbd834268e9b532f35d7ea34082f9b70",
+    "semantic_hash": "dbd834268e9b532f35d7ea34082f9b70"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\revenue\\NonMachineRevenueForm.tsx": {
+    "mtime": 1779149366.814131,
+    "ast_hash": "f7ddab373666af0f5f6d1008bd5045f3",
+    "semantic_hash": "f7ddab373666af0f5f6d1008bd5045f3"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\revenue\\NonMachineRevenueTab.tsx": {
+    "mtime": 1779149435.2269752,
+    "ast_hash": "d4597242b733d0d963b0c6f253629711",
+    "semantic_hash": "d4597242b733d0d963b0c6f253629711"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\revenue\\RevenueView.tsx": {
+    "mtime": 1779149448.3320942,
+    "ast_hash": "97bd8348eedce1c5cc323e8735de3596",
+    "semantic_hash": "97bd8348eedce1c5cc323e8735de3596"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\revenue\\types.ts": {
+    "mtime": 1779149296.210005,
+    "ast_hash": "4295ab39e05ddf8e0bc7dc64fe9a1076",
+    "semantic_hash": "4295ab39e05ddf8e0bc7dc64fe9a1076"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\accordion.tsx": {
+    "mtime": 1779142902.9260437,
+    "ast_hash": "b70c6a9ebee8874bb4e5880da21a4f44",
+    "semantic_hash": "b70c6a9ebee8874bb4e5880da21a4f44"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\alert-dialog.tsx": {
+    "mtime": 1779142902.932062,
+    "ast_hash": "fffdba13911be5058cb47ae712dd00b6",
+    "semantic_hash": "fffdba13911be5058cb47ae712dd00b6"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\alert.tsx": {
+    "mtime": 1779142902.9386306,
+    "ast_hash": "162e5c706a1cd900d863fd5a19a56507",
+    "semantic_hash": "162e5c706a1cd900d863fd5a19a56507"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\aspect-ratio.tsx": {
+    "mtime": 1779142902.9451158,
+    "ast_hash": "2c1c30af12401d88f8df52c3c235ed67",
+    "semantic_hash": "2c1c30af12401d88f8df52c3c235ed67"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\avatar.tsx": {
+    "mtime": 1779142902.9511325,
+    "ast_hash": "c8fcbe36f44f9d68c45ce38546bdda9c",
+    "semantic_hash": "c8fcbe36f44f9d68c45ce38546bdda9c"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\badge.tsx": {
+    "mtime": 1779142902.957148,
+    "ast_hash": "027ca1b168b5a31ec381898dd0fad1d8",
+    "semantic_hash": "027ca1b168b5a31ec381898dd0fad1d8"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\breadcrumb.tsx": {
+    "mtime": 1779142902.9611146,
+    "ast_hash": "ffaa516f002d988d1a3d2cffb2a5f175",
+    "semantic_hash": "ffaa516f002d988d1a3d2cffb2a5f175"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\button.tsx": {
+    "mtime": 1779142902.9691744,
+    "ast_hash": "2a2ce95de39f4f4849f70bb615492ab7",
+    "semantic_hash": "2a2ce95de39f4f4849f70bb615492ab7"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\calendar.tsx": {
+    "mtime": 1779142902.9740014,
+    "ast_hash": "f5fd009223e3652640773e98dcc5e59f",
+    "semantic_hash": "f5fd009223e3652640773e98dcc5e59f"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\card.tsx": {
+    "mtime": 1779142902.9794774,
+    "ast_hash": "1c1ec988ee2908e66b010798309baa58",
+    "semantic_hash": "1c1ec988ee2908e66b010798309baa58"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\carousel.tsx": {
+    "mtime": 1779142902.9852688,
+    "ast_hash": "c89d7f94c3d16dcf2d4e34f0b8034084",
+    "semantic_hash": "c89d7f94c3d16dcf2d4e34f0b8034084"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\chart.tsx": {
+    "mtime": 1779142902.9912865,
+    "ast_hash": "42ef994d83724dcaacbdddeaddf7b18b",
+    "semantic_hash": "42ef994d83724dcaacbdddeaddf7b18b"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\checkbox.tsx": {
+    "mtime": 1779142902.9952967,
+    "ast_hash": "513285928084159260a7f0f6735f77c8",
+    "semantic_hash": "513285928084159260a7f0f6735f77c8"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\collapsible.tsx": {
+    "mtime": 1779142903.0016837,
+    "ast_hash": "fb83308ef990f33e60b56b22c6adb007",
+    "semantic_hash": "fb83308ef990f33e60b56b22c6adb007"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\command.tsx": {
+    "mtime": 1779142903.007233,
+    "ast_hash": "41e1d0c759f0327b879dfec678cfe781",
+    "semantic_hash": "41e1d0c759f0327b879dfec678cfe781"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\context-menu.tsx": {
+    "mtime": 1779142903.0129905,
+    "ast_hash": "d613a68dc16ac28500406d3ed7d1cc44",
+    "semantic_hash": "d613a68dc16ac28500406d3ed7d1cc44"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\dialog.tsx": {
+    "mtime": 1779142903.014996,
+    "ast_hash": "d908f64f8ea05b532d292ff2cfc0f9d0",
+    "semantic_hash": "d908f64f8ea05b532d292ff2cfc0f9d0"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\drawer.tsx": {
+    "mtime": 1779142903.023789,
+    "ast_hash": "eb7f3850284135ed58adeeb2205e739c",
+    "semantic_hash": "eb7f3850284135ed58adeeb2205e739c"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\dropdown-menu.tsx": {
+    "mtime": 1779142903.0288022,
+    "ast_hash": "88eba49303246bd059776e95106373e5",
+    "semantic_hash": "88eba49303246bd059776e95106373e5"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\form.tsx": {
+    "mtime": 1779142903.032814,
+    "ast_hash": "7bd150b19048c2af09b63dd0a260b179",
+    "semantic_hash": "7bd150b19048c2af09b63dd0a260b179"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\hover-card.tsx": {
+    "mtime": 1779142903.0412824,
+    "ast_hash": "2225b5b5db78c8dde5f0aff6aa08458c",
+    "semantic_hash": "2225b5b5db78c8dde5f0aff6aa08458c"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\input-otp.tsx": {
+    "mtime": 1779142903.0467985,
+    "ast_hash": "a74758e038db3ef3301c58bd0ac01753",
+    "semantic_hash": "a74758e038db3ef3301c58bd0ac01753"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\input.tsx": {
+    "mtime": 1779142903.0528185,
+    "ast_hash": "3a32dac1fb72ab6a6893f806aac049e0",
+    "semantic_hash": "3a32dac1fb72ab6a6893f806aac049e0"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\label.tsx": {
+    "mtime": 1779142903.0588346,
+    "ast_hash": "06608274383a01446d19b9a7ed8148c3",
+    "semantic_hash": "06608274383a01446d19b9a7ed8148c3"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\menubar.tsx": {
+    "mtime": 1779142903.0640147,
+    "ast_hash": "c955592a9b680c223a6aa7ba5eca19af",
+    "semantic_hash": "c955592a9b680c223a6aa7ba5eca19af"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\navigation-menu.tsx": {
+    "mtime": 1779142903.0700312,
+    "ast_hash": "c6ecd95499ba6e8fe4d8fdd16be18d24",
+    "semantic_hash": "c6ecd95499ba6e8fe4d8fdd16be18d24"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\pagination.tsx": {
+    "mtime": 1779142903.072038,
+    "ast_hash": "7531a02a3c7a33d56e2f668ffd7a0d35",
+    "semantic_hash": "7531a02a3c7a33d56e2f668ffd7a0d35"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\popover.tsx": {
+    "mtime": 1779142903.0815418,
+    "ast_hash": "3db5181d3777cead79949d25c31872aa",
+    "semantic_hash": "3db5181d3777cead79949d25c31872aa"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\progress.tsx": {
+    "mtime": 1779142903.0855522,
+    "ast_hash": "a21bc28c146d6e943b3204b095f17a74",
+    "semantic_hash": "a21bc28c146d6e943b3204b095f17a74"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\radio-group.tsx": {
+    "mtime": 1779142903.092572,
+    "ast_hash": "25f34d829563805260a4b1234bfcac3f",
+    "semantic_hash": "25f34d829563805260a4b1234bfcac3f"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\resizable.tsx": {
+    "mtime": 1779142903.0978098,
+    "ast_hash": "dbedce80325c20ea43ce386433e87415",
+    "semantic_hash": "dbedce80325c20ea43ce386433e87415"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\scroll-area.tsx": {
+    "mtime": 1779142903.1038275,
+    "ast_hash": "ceed8816f5ac36bda5c970e49fed5347",
+    "semantic_hash": "ceed8816f5ac36bda5c970e49fed5347"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\select.tsx": {
+    "mtime": 1779142903.1083648,
+    "ast_hash": "7efb1603282cbfbd4bb752fc6aa16465",
+    "semantic_hash": "7efb1603282cbfbd4bb752fc6aa16465"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\separator.tsx": {
+    "mtime": 1779142903.1143813,
+    "ast_hash": "8011cea02bdcd4a2e666dacb82cf43d6",
+    "semantic_hash": "8011cea02bdcd4a2e666dacb82cf43d6"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\sheet.tsx": {
+    "mtime": 1779142903.1163857,
+    "ast_hash": "14f866a1ec7bd747f499b606f8e40cb3",
+    "semantic_hash": "14f866a1ec7bd747f499b606f8e40cb3"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\sidebar.tsx": {
+    "mtime": 1779142903.1242464,
+    "ast_hash": "6f2411b67de8153c8890d9688b636cb0",
+    "semantic_hash": "6f2411b67de8153c8890d9688b636cb0"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\skeleton.tsx": {
+    "mtime": 1779142903.1262522,
+    "ast_hash": "a71aca7b1a33fbf0e5ecd93015c7804f",
+    "semantic_hash": "a71aca7b1a33fbf0e5ecd93015c7804f"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\slider.tsx": {
+    "mtime": 1779142903.1369371,
+    "ast_hash": "276b72ee040e75c35385b068e6c279d2",
+    "semantic_hash": "276b72ee040e75c35385b068e6c279d2"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\sonner.tsx": {
+    "mtime": 1779142903.1398766,
+    "ast_hash": "ace3a6465858e1f9a441724008f2d921",
+    "semantic_hash": "ace3a6465858e1f9a441724008f2d921"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\switch.tsx": {
+    "mtime": 1779142903.1457384,
+    "ast_hash": "24628008ea7aeeecdd193ca7de846552",
+    "semantic_hash": "24628008ea7aeeecdd193ca7de846552"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\table.tsx": {
+    "mtime": 1779142903.1539865,
+    "ast_hash": "2066531279772875cba1f2c269fe23b4",
+    "semantic_hash": "2066531279772875cba1f2c269fe23b4"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\tabs.tsx": {
+    "mtime": 1779142903.1597369,
+    "ast_hash": "e85ffdace1c1d8b2e4c748c2877b9fe2",
+    "semantic_hash": "e85ffdace1c1d8b2e4c748c2877b9fe2"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\textarea.tsx": {
+    "mtime": 1779142903.1650164,
+    "ast_hash": "9aa996cfdc9b59dd5e9cce00e5fb8280",
+    "semantic_hash": "9aa996cfdc9b59dd5e9cce00e5fb8280"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\toggle-group.tsx": {
+    "mtime": 1779142903.1690261,
+    "ast_hash": "4bc07765706ef9a2e74f97de0fc0ecc0",
+    "semantic_hash": "4bc07765706ef9a2e74f97de0fc0ecc0"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\toggle.tsx": {
+    "mtime": 1779142903.1758492,
+    "ast_hash": "4c8cf865ef8acde9a3558cb8c21ecdc4",
+    "semantic_hash": "4c8cf865ef8acde9a3558cb8c21ecdc4"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\tooltip.tsx": {
+    "mtime": 1779142903.1825309,
+    "ast_hash": "7e731b948edb6f93cf7d1841d056e5bb",
+    "semantic_hash": "7e731b948edb6f93cf7d1841d056e5bb"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\use-mobile.ts": {
+    "mtime": 1779142903.1867805,
+    "ast_hash": "21f0293b823c5298aa735fc013840cff",
+    "semantic_hash": "21f0293b823c5298aa735fc013840cff"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\app\\components\\ui\\utils.ts": {
+    "mtime": 1779142903.1867805,
+    "ast_hash": "d9837f38cc05303254571985e3164050",
+    "semantic_hash": "d9837f38cc05303254571985e3164050"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\lib\\database.types.ts": {
+    "mtime": 1779147725.9640193,
+    "ast_hash": "6283376f954a0e18a0f2b405f6de5133",
+    "semantic_hash": "6283376f954a0e18a0f2b405f6de5133"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\lib\\supabase.ts": {
+    "mtime": 1779147698.0388286,
+    "ast_hash": "6393d8296a9494deae17f1fec4e52559",
+    "semantic_hash": "6393d8296a9494deae17f1fec4e52559"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\main.tsx": {
+    "mtime": 1779142902.861582,
+    "ast_hash": "51dad133822f0eec82675f1d05c8719f",
+    "semantic_hash": "51dad133822f0eec82675f1d05c8719f"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\tsconfig.json": {
+    "mtime": 1779148861.455578,
+    "ast_hash": "9d4fbe783253d381ad63a845938488bb",
+    "semantic_hash": "9d4fbe783253d381ad63a845938488bb"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\vite.config.ts": {
+    "mtime": 1779142903.2876956,
+    "ast_hash": "9347c67795b1fd4ca5530c712893f851",
+    "semantic_hash": "9347c67795b1fd4ca5530c712893f851"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\supabase\\schema.sql": {
+    "mtime": 1779147766.3847253,
+    "ast_hash": "a687ccc0c1b731246a9b726b28eb2e07",
+    "semantic_hash": "a687ccc0c1b731246a9b726b28eb2e07"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\CLAUDE.md": {
+    "mtime": 1779146628.2831852,
+    "ast_hash": "e8b34dd825b91649df118b2e9eee3ffe",
+    "semantic_hash": "e8b34dd825b91649df118b2e9eee3ffe"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\ATTRIBUTIONS.md": {
+    "mtime": 1779142903.3039973,
+    "ast_hash": "0ef7cd1ecf2c4438bc1c8787c02252da",
+    "semantic_hash": "0ef7cd1ecf2c4438bc1c8787c02252da"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\README.md": {
+    "mtime": 1779142903.272718,
+    "ast_hash": "a7540b6235937a0c405b01ba1659bbb4",
+    "semantic_hash": "a7540b6235937a0c405b01ba1659bbb4"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\guidelines\\Guidelines.md": {
+    "mtime": 1779142903.2977574,
+    "ast_hash": "5af43702d745a31480e9a483616bf246",
+    "semantic_hash": "5af43702d745a31480e9a483616bf246"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\index.html": {
+    "mtime": 1779162094.8622751,
+    "ast_hash": "3d27398899fda044f42d69d8eb1fbc97",
+    "semantic_hash": "3d27398899fda044f42d69d8eb1fbc97"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\pnpm-workspace.yaml": {
+    "mtime": 1779148121.7039351,
+    "ast_hash": "275bbb3ec64b0e8dfd65cf3a4d9f7a74",
+    "semantic_hash": "275bbb3ec64b0e8dfd65cf3a4d9f7a74"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\src\\imports\\pasted_text\\pinball-accounting-brief.md": {
+    "mtime": 1779142903.2502258,
+    "ast_hash": "d34e823f969bdd0eae53d97ad0f6dc84",
+    "semantic_hash": "d34e823f969bdd0eae53d97ad0f6dc84"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\TODO.md": {
+    "mtime": 1779159797.173904,
+    "ast_hash": "f973da2de37220407346420d5bec92b9",
+    "semantic_hash": "f973da2de37220407346420d5bec92b9"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\design-reference.html": {
+    "mtime": 1779163135.3740528,
+    "ast_hash": "9763fa91839eaf3bbf64a95ad99d7502",
+    "semantic_hash": "9763fa91839eaf3bbf64a95ad99d7502"
+  },
+  "C:\\Users\\bevde\\Desktop\\Pinball Accounting Program\\Steampunk Pinball Layout\\public\\favicon.png": {
+    "mtime": 1779161845.9287395,
+    "ast_hash": "0cfb51a02d1602e71887dbcc4d251029",
+    "semantic_hash": "0cfb51a02d1602e71887dbcc4d251029"
+  }
+}
