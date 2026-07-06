@@ -47,14 +47,16 @@ export function MachineRevenueTab({ locationId, machines }: Props) {
   const [deleting, setDeleting] = useState(false)
 
   const fetchEntries = useCallback(async () => {
+    if (!locationId) { setEntries([]); setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('machine_revenue')
       .select('*, machines(name)')
+      .eq('location_id', locationId)
       .order('collection_date', { ascending: false })
     if (data) setEntries(data)
     setLoading(false)
-  }, [])
+  }, [locationId])
 
   useEffect(() => { fetchEntries() }, [fetchEntries])
 

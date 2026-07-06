@@ -21,6 +21,16 @@
 - [x] Connect maintenance alerts to live data (OVERDUE/DUE SOON within 30 days)
 - [x] Connect loans summary to live data (amortization-calculated remaining balance + total paid)
 
+### Locations
+- [x] Locations management view (list, add, edit — name, address, main contact, contact email, phone number)
+- [x] Global "active location" switcher in sidebar (persisted to localStorage)
+- [x] "Locations" top-level nav item (CLAUDE.md nav spec updated to 9 items)
+- [x] Machines: required Location field on add/edit, machines list scoped to active location
+- [x] Revenue (machine & non-machine): scoped to active location; machine revenue location_id derives from the machine's own location
+- [x] Expenses: list and machine dropdown scoped to active location
+- [x] Rent & Commission: agreements scoped to active location
+- [x] "All Locations" option in the sidebar switcher (default selection) — Machines view shows machines from every venue at once with a Location column; Revenue/Expenses/Rent & Commission prompt to select a specific location since those are single-venue-scoped
+
 ### Machines
 - [x] Machine list view (table) with status filter tabs
 - [x] Add machine form
@@ -77,8 +87,15 @@
 
 ## Bugs
 
-*(none yet)*
+- [x] Sidebar location switcher defaulted to whichever location sorted first alphabetically, not necessarily the one with existing machines/data — made machines appear "missing" when a new location alphabetically preceded the venue holding the data. Fixed by defaulting the switcher to a new "All Locations" option instead of the first location.
 
 ## Open Questions
 
-*(none currently)*
+- [ ] Locations feature added `address`, `main_contact`, `contact_email`, `phone_number` columns to the `locations` table in `supabase/schema.sql`. The live Supabase project already has a `locations` table from before — run this once in the Supabase SQL editor to add the new columns:
+  ```sql
+  alter table locations
+    add column if not exists address text,
+    add column if not exists main_contact text,
+    add column if not exists contact_email text,
+    add column if not exists phone_number text;
+  ```

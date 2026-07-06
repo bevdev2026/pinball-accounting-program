@@ -1,4 +1,5 @@
-import { LayoutDashboard, Gamepad2, TrendingUp, Receipt, Percent, FileText, Folder, AlertCircle } from 'lucide-react';
+import { LayoutDashboard, Gamepad2, TrendingUp, Receipt, Percent, FileText, Folder, AlertCircle, MapPin } from 'lucide-react';
+import { useActiveLocation, ALL_LOCATIONS_ID } from '../context/LocationContext';
 
 interface SidebarProps {
   activeView: string;
@@ -7,6 +8,7 @@ interface SidebarProps {
 
 const navigationItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'locations', label: 'Locations', icon: MapPin },
   { id: 'machines', label: 'Machines', icon: Gamepad2 },
   { id: 'revenue', label: 'Revenue', icon: TrendingUp },
   { id: 'expenses', label: 'Expenses', icon: Receipt },
@@ -17,6 +19,8 @@ const navigationItems = [
 ];
 
 export function Sidebar({ activeView, onNavigate }: SidebarProps) {
+  const { locations, activeLocationId, setActiveLocationId } = useActiveLocation();
+
   return (
     <aside
       className="w-64 h-screen flex flex-col border-r"
@@ -46,6 +50,38 @@ export function Sidebar({ activeView, onNavigate }: SidebarProps) {
           ACCOUNTING SYSTEM
         </p>
       </div>
+
+      {locations.length > 0 && (
+        <div className="px-4 pt-4">
+          <label
+            className="block text-xs mb-1 tracking-wider"
+            style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-muted)', letterSpacing: '0.12em' }}
+          >
+            ACTIVE LOCATION
+          </label>
+          <select
+            value={activeLocationId}
+            onChange={e => setActiveLocationId(e.target.value)}
+            className="w-full"
+            style={{
+              padding: '8px 10px',
+              backgroundColor: 'var(--bg-elevated)',
+              border: '1px solid var(--copper-dark)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--text-primary)',
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            <option value={ALL_LOCATIONS_ID}>All Locations</option>
+            {locations.map(loc => (
+              <option key={loc.id} value={loc.id}>{loc.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <nav className="flex-1 p-4">
         {navigationItems.map((item) => {

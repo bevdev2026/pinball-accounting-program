@@ -6,6 +6,7 @@ import type { Expense, ExpenseCategory, ActiveMachine } from './types'
 import { ExpenseForm } from './ExpenseForm'
 import { ExpenseCategoryManager } from './ExpenseCategoryManager'
 import { Button } from '../ui/button'
+import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
 function formatDate(d: string) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -24,10 +25,11 @@ const colHeader: React.CSSProperties = {
 }
 
 export function ExpensesView() {
+  const { activeLocationId } = useActiveLocation()
+  const showingAllLocations = activeLocationId === ALL_LOCATIONS_ID
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [categories, setCategories] = useState<ExpenseCategory[]>([])
   const [machines, setMachines] = useState<ActiveMachine[]>([])
-  const [locationId, setLocationId] = useState('')
   const [loading, setLoading] = useState(true)
 
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -43,28 +45,33 @@ export function ExpensesView() {
   }, [])
 
   const fetchExpenses = useCallback(async () => {
+    if (!activeLocationId || showingAllLocations) { setExpenses([]); setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('expenses')
       .select('*, expense_categories(name), machines(name)')
+      .eq('location_id', activeLocationId)
       .order('date', { ascending: false })
     if (data) setExpenses(data)
     setLoading(false)
-  }, [])
+  }, [activeLocationId, showingAllLocations])
 
   useEffect(() => {
     async function init() {
-      const [{ data: loc }, { data: m }] = await Promise.all([
-        supabase.from('locations').select('id').single(),
-        supabase.from('machines').select('id, name, status').eq('is_archived', false).neq('status', 'Retired').order('name'),
-      ])
-      if (loc) setLocationId(loc.id)
+      if (!activeLocationId || showingAllLocations) { setMachines([]); return }
+      const { data: m } = await supabase
+        .from('machines')
+        .select('id, name, status')
+        .eq('location_id', activeLocationId)
+        .eq('is_archived', false)
+        .neq('status', 'Retired')
+        .order('name')
       if (m) setMachines(m)
     }
     init()
     fetchCategories()
     fetchExpenses()
-  }, [fetchCategories, fetchExpenses])
+  }, [activeLocationId, showingAllLocations, fetchCategories, fetchExpenses])
 
   async function handleDelete(id: string) {
     setDeleting(true)
@@ -112,16 +119,24 @@ export function ExpensesView() {
             <Settings size={13} />
             Categories
           </Button>
-          <Button
-            onClick={() => { setEditExpense(null); setShowForm(true) }}
-            style={{ backgroundColor: 'var(--copper-base)', color: 'var(--text-heading)' }}
-          >
-            <Plus size={15} />
-            Add Expense
-          </Button>
+          {!showingAllLocations && (
+            <Button
+              onClick={() => { setEditExpense(null); setShowForm(true) }}
+              style={{ backgroundColor: 'var(--copper-base)', color: 'var(--text-heading)' }}
+            >
+              <Plus size={15} />
+              Add Expense
+            </Button>
+          )}
         </div>
       </div>
 
+      {showingAllLocations ? (
+        <div className="p-8 text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '14px' }}>
+          Select a specific location from the sidebar to view and manage Expenses.
+        </div>
+      ) : (
+        <>
       {/* Totals bar */}
       {expenses.length > 0 && (
         <div
@@ -282,13 +297,15 @@ export function ExpensesView() {
           {filtered.length} {filtered.length === 1 ? 'EXPENSE' : 'EXPENSES'}
         </div>
       )}
+        </>
+      )}
 
       {showForm && (
         <ExpenseForm
           expense={editExpense}
           categories={categories}
           machines={machines}
-          locationId={locationId}
+          locationId={activeLocationId}
           onSave={fetchExpenses}
           onClose={() => { setShowForm(false); setEditExpense(null) }}
         />

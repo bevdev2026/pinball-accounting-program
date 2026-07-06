@@ -11,9 +11,13 @@ create extension if not exists "pgcrypto";
 -- Single venue in v1, multi-location support ready for v2
 -- ============================================================
 create table if not exists locations (
-  id         uuid primary key default gen_random_uuid(),
-  name       text not null,
-  created_at timestamptz not null default now()
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null,
+  address       text,
+  main_contact  text,
+  contact_email text,
+  phone_number  text,
+  created_at    timestamptz not null default now()
 );
 
 -- Seed the default single venue

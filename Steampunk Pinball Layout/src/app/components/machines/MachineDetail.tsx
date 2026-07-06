@@ -363,7 +363,6 @@ export function MachineDetail({ machineId, locationId, onBack, onArchived }: Pro
       {showEditForm && (
         <MachineForm
           machine={machine}
-          locationId={locationId}
           onSave={fetchAll}
           onClose={() => setShowEditForm(false)}
         />

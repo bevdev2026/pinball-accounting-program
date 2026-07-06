@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import type { Machine, MachineStatus } from './types'
+import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '../ui/dialog'
@@ -9,16 +10,18 @@ import { Button } from '../ui/button'
 
 interface Props {
   machine: Machine | null
-  locationId: string
   onSave: () => void
   onClose: () => void
 }
 
 const STATUS_OPTIONS: MachineStatus[] = ['Active', 'Out of Service', 'Retired']
 
-export function MachineForm({ machine, locationId, onSave, onClose }: Props) {
+export function MachineForm({ machine, onSave, onClose }: Props) {
   const isEdit = machine !== null
+  const { locations, activeLocationId } = useActiveLocation()
+  const defaultLocationId = activeLocationId === ALL_LOCATIONS_ID ? (locations[0]?.id ?? '') : activeLocationId
   const [name, setName] = useState(machine?.name ?? '')
+  const [locationId, setLocationId] = useState(machine?.location_id ?? defaultLocationId)
   const [purchasePrice, setPurchasePrice] = useState(machine?.purchase_price?.toString() ?? '')
   const [dateAcquired, setDateAcquired] = useState(machine?.date_acquired ?? '')
   const [status, setStatus] = useState<MachineStatus>(machine?.status ?? 'Active')
@@ -26,10 +29,11 @@ export function MachineForm({ machine, locationId, onSave, onClose }: Props) {
 
   useEffect(() => {
     setName(machine?.name ?? '')
+    setLocationId(machine?.location_id ?? defaultLocationId)
     setPurchasePrice(machine?.purchase_price?.toString() ?? '')
     setDateAcquired(machine?.date_acquired ?? '')
     setStatus(machine?.status ?? 'Active')
-  }, [machine])
+  }, [machine, defaultLocationId])
 
   async function handleSave() {
     if (!name.trim()) {
@@ -42,7 +46,7 @@ export function MachineForm({ machine, locationId, onSave, onClose }: Props) {
     if (isEdit) {
       const { error } = await supabase
         .from('machines')
-        .update({ name: name.trim(), purchase_price: price, date_acquired: dateAcquired || null, status })
+        .update({ location_id: locationId, name: name.trim(), purchase_price: price, date_acquired: dateAcquired || null, status })
         .eq('id', machine!.id)
       if (error) { toast.error('Failed to update machine.'); setSaving(false); return }
       toast.success('Machine updated.')
@@ -102,6 +106,19 @@ export function MachineForm({ machine, locationId, onSave, onClose }: Props) {
               placeholder="e.g. Stern Godzilla"
               autoFocus
             />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Location *</label>
+            <select
+              style={{ ...inputStyle, cursor: 'pointer' }}
+              value={locationId}
+              onChange={e => setLocationId(e.target.value)}
+            >
+              {locations.map(loc => (
+                <option key={loc.id} value={loc.id}>{loc.name}</option>
+              ))}
+            </select>
           </div>
 
           <div>

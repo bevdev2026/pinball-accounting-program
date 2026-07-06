@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import type { Agreement } from './types'
 import { RentAgreementForm } from './RentAgreementForm'
 import { Button } from '../ui/button'
+import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
 function formatDate(d: string) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -55,29 +56,25 @@ const colHeader: React.CSSProperties = {
 }
 
 export function RentView() {
+  const { activeLocationId } = useActiveLocation()
+  const showingAllLocations = activeLocationId === ALL_LOCATIONS_ID
   const [agreements, setAgreements] = useState<Agreement[]>([])
-  const [locationId, setLocationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   const fetchAgreements = useCallback(async () => {
+    if (!activeLocationId || showingAllLocations) { setAgreements([]); setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('rent_commission_agreements')
       .select('*')
+      .eq('location_id', activeLocationId)
       .order('effective_date', { ascending: false })
     if (data) setAgreements(data as Agreement[])
     setLoading(false)
-  }, [])
+  }, [activeLocationId, showingAllLocations])
 
-  useEffect(() => {
-    async function init() {
-      const { data: loc } = await supabase.from('locations').select('id').single()
-      if (loc) setLocationId(loc.id)
-    }
-    init()
-    fetchAgreements()
-  }, [fetchAgreements])
+  useEffect(() => { fetchAgreements() }, [fetchAgreements])
 
   const activeAgreement = agreements.find(a => !a.end_date) ?? null
   const historyAgreements = agreements.filter(a => a.end_date !== null)
@@ -94,15 +91,23 @@ export function RentView() {
             CONTRA REVENUE — DEDUCTED FROM GROSS
           </p>
         </div>
-        <Button
-          onClick={() => setShowForm(true)}
-          style={{ backgroundColor: 'var(--copper-base)', color: 'var(--text-heading)' }}
-        >
-          {activeAgreement ? <Pencil size={15} /> : <Plus size={15} />}
-          {activeAgreement ? 'Update Agreement' : 'Set Agreement'}
-        </Button>
+        {!showingAllLocations && (
+          <Button
+            onClick={() => setShowForm(true)}
+            style={{ backgroundColor: 'var(--copper-base)', color: 'var(--text-heading)' }}
+          >
+            {activeAgreement ? <Pencil size={15} /> : <Plus size={15} />}
+            {activeAgreement ? 'Update Agreement' : 'Set Agreement'}
+          </Button>
+        )}
       </div>
 
+      {showingAllLocations ? (
+        <div className="p-8 text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '14px' }}>
+          Select a specific location from the sidebar to view and manage Rent & Commission.
+        </div>
+      ) : (
+        <>
       {/* Active agreement card */}
       <div
         style={{
@@ -203,11 +208,13 @@ export function RentView() {
           </div>
         </div>
       )}
+        </>
+      )}
 
       {showForm && (
         <RentAgreementForm
           activeAgreement={activeAgreement}
-          locationId={locationId}
+          locationId={activeLocationId}
           onSave={fetchAgreements}
           onClose={() => setShowForm(false)}
         />

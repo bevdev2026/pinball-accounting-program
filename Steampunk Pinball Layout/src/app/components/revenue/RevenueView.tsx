@@ -3,30 +3,30 @@ import { supabase } from '@/lib/supabase'
 import type { ActiveMachine } from './types'
 import { MachineRevenueTab } from './MachineRevenueTab'
 import { NonMachineRevenueTab } from './NonMachineRevenueTab'
+import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
 type Tab = 'machine' | 'other'
 
 export function RevenueView() {
+  const { activeLocationId } = useActiveLocation()
+  const showingAllLocations = activeLocationId === ALL_LOCATIONS_ID
   const [activeTab, setActiveTab] = useState<Tab>('machine')
-  const [locationId, setLocationId] = useState('')
   const [machines, setMachines] = useState<ActiveMachine[]>([])
 
   useEffect(() => {
     async function init() {
-      const [{ data: loc }, { data: m }] = await Promise.all([
-        supabase.from('locations').select('id').single(),
-        supabase
-          .from('machines')
-          .select('id, name, status')
-          .eq('is_archived', false)
-          .neq('status', 'Retired')
-          .order('name'),
-      ])
-      if (loc) setLocationId(loc.id)
+      if (!activeLocationId || showingAllLocations) { setMachines([]); return }
+      const { data: m } = await supabase
+        .from('machines')
+        .select('id, name, status')
+        .eq('location_id', activeLocationId)
+        .eq('is_archived', false)
+        .neq('status', 'Retired')
+        .order('name')
       if (m) setMachines(m)
     }
     init()
-  }, [])
+  }, [activeLocationId])
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
     padding: '8px 20px',
@@ -53,21 +53,29 @@ export function RevenueView() {
         </p>
       </div>
 
-      {/* Tab bar */}
-      <div style={{ borderBottom: '1px solid var(--copper-dark)' }}>
-        <button style={tabStyle(activeTab === 'machine')} onClick={() => setActiveTab('machine')}>
-          MACHINE REVENUE
-        </button>
-        <button style={tabStyle(activeTab === 'other')} onClick={() => setActiveTab('other')}>
-          OTHER REVENUE
-        </button>
-      </div>
-
-      {/* Tab content */}
-      {activeTab === 'machine' ? (
-        <MachineRevenueTab locationId={locationId} machines={machines} />
+      {showingAllLocations ? (
+        <div className="p-8 text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '14px' }}>
+          Select a specific location from the sidebar to view and manage Revenue.
+        </div>
       ) : (
-        <NonMachineRevenueTab locationId={locationId} />
+        <>
+          {/* Tab bar */}
+          <div style={{ borderBottom: '1px solid var(--copper-dark)' }}>
+            <button style={tabStyle(activeTab === 'machine')} onClick={() => setActiveTab('machine')}>
+              MACHINE REVENUE
+            </button>
+            <button style={tabStyle(activeTab === 'other')} onClick={() => setActiveTab('other')}>
+              OTHER REVENUE
+            </button>
+          </div>
+
+          {/* Tab content */}
+          {activeTab === 'machine' ? (
+            <MachineRevenueTab locationId={activeLocationId} machines={machines} />
+          ) : (
+            <NonMachineRevenueTab locationId={activeLocationId} />
+          )}
+        </>
       )}
     </div>
   )

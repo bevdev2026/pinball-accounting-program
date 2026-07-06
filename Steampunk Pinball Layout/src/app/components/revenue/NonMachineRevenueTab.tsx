@@ -43,14 +43,16 @@ export function NonMachineRevenueTab({ locationId }: Props) {
   }, [])
 
   const fetchEntries = useCallback(async () => {
+    if (!locationId) { setEntries([]); setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('non_machine_revenue')
       .select('*, revenue_categories(name)')
+      .eq('location_id', locationId)
       .order('date', { ascending: false })
     if (data) setEntries(data)
     setLoading(false)
-  }, [])
+  }, [locationId])
 
   useEffect(() => {
     fetchCategories()

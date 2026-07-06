@@ -100,15 +100,16 @@ The following features are explicitly out of scope for Version 1. They are plann
 The application shall have a persistent sidebar or top-level navigation with the following sections in this order:
 
 1. Dashboard
-2. Machines
-3. Revenue
-4. Expenses
-5. Rent & Commission
-6. Liabilities
-7. Reports
-8. Dropbox
+2. Locations
+3. Machines
+4. Revenue
+5. Expenses
+6. Rent & Commission
+7. Liabilities
+8. Reports
+9. Dropbox
 
-These are the only top-level navigation items. All other views (e.g., individual machine detail, maintenance log, loan detail) are accessed by drilling into a record within one of these sections — they do not appear as separate top-level navigation items.
+These are the only top-level navigation items, with the exception of Locations, which was added to support multi-location management (see Locations section). All other views (e.g., individual machine detail, maintenance log, loan detail) are accessed by drilling into a record within one of these sections — they do not appear as separate top-level navigation items.
 
 ---
 

@@ -5,6 +5,7 @@ import type { Machine, MachineStatus } from './types'
 import { MachineDetail } from './MachineDetail'
 import { MachineForm } from './MachineForm'
 import { Button } from '../ui/button'
+import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
 type StatusFilter = 'All' | MachineStatus | 'Archived'
 const FILTER_TABS: StatusFilter[] = ['All', 'Active', 'Out of Service', 'Retired', 'Archived']
@@ -37,8 +38,9 @@ function formatDate(d: string | null): string {
 }
 
 export function MachinesView() {
+  const { activeLocationId, locations } = useActiveLocation()
+  const showingAllLocations = activeLocationId === ALL_LOCATIONS_ID
   const [machines, setMachines] = useState<Machine[]>([])
-  const [locationId, setLocationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All')
   const [selectedMachineId, setSelectedMachineId] = useState<string | null>(null)
@@ -46,15 +48,14 @@ export function MachinesView() {
   const [editMachine, setEditMachine] = useState<Machine | null>(null)
 
   const fetchData = useCallback(async () => {
+    if (!activeLocationId) { setMachines([]); setLoading(false); return }
     setLoading(true)
-    const [{ data: loc }, { data: m }] = await Promise.all([
-      supabase.from('locations').select('id').single(),
-      supabase.from('machines').select('*').order('name'),
-    ])
-    if (loc) setLocationId(loc.id)
+    let query = supabase.from('machines').select('*').order('name')
+    if (activeLocationId !== ALL_LOCATIONS_ID) query = query.eq('location_id', activeLocationId)
+    const { data: m } = await query
     if (m) setMachines(m)
     setLoading(false)
-  }, [])
+  }, [activeLocationId])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -65,10 +66,11 @@ export function MachinesView() {
   })
 
   if (selectedMachineId) {
+    const selectedMachine = machines.find(m => m.id === selectedMachineId)
     return (
       <MachineDetail
         machineId={selectedMachineId}
-        locationId={locationId}
+        locationId={selectedMachine?.location_id ?? activeLocationId}
         onBack={() => { setSelectedMachineId(null); fetchData() }}
         onArchived={() => { setSelectedMachineId(null); fetchData() }}
       />
@@ -95,6 +97,12 @@ export function MachinesView() {
     color: 'var(--text-muted)',
     padding: '10px 16px',
   }
+
+  const gridTemplateColumns = showingAllLocations
+    ? '1fr 140px 140px 120px 140px 100px'
+    : '1fr 140px 120px 140px 100px'
+
+  const locationName = (id: string) => locations.find(l => l.id === id)?.name ?? '—'
 
   return (
     <div className="p-8 space-y-6">
@@ -129,8 +137,9 @@ export function MachinesView() {
       {/* Table */}
       <div style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
         {/* Column headers */}
-        <div className="grid" style={{ gridTemplateColumns: '1fr 140px 120px 140px 100px', borderBottom: '1px solid var(--copper-dark)' }}>
+        <div className="grid" style={{ gridTemplateColumns, borderBottom: '1px solid var(--copper-dark)' }}>
           <div style={colHeader}>NAME</div>
+          {showingAllLocations && <div style={colHeader}>LOCATION</div>}
           <div style={colHeader}>STATUS</div>
           <div style={colHeader}>PURCHASE PRICE</div>
           <div style={colHeader}>DATE ACQUIRED</div>
@@ -155,7 +164,7 @@ export function MachinesView() {
               key={machine.id}
               className="grid items-center"
               style={{
-                gridTemplateColumns: '1fr 140px 120px 140px 100px',
+                gridTemplateColumns,
                 borderBottom: i < filtered.length - 1 ? '1px solid rgba(107,46,18,0.25)' : 'none',
                 padding: '0',
               }}
@@ -168,6 +177,11 @@ export function MachinesView() {
                   </span>
                 )}
               </div>
+              {showingAllLocations && (
+                <div style={{ padding: '14px 16px', fontFamily: 'var(--font-body)', color: 'var(--text-secondary)', fontSize: '14px' }}>
+                  {locationName(machine.location_id)}
+                </div>
+              )}
               <div style={{ padding: '14px 16px' }}>
                 <StatusBadge status={machine.status} />
               </div>
@@ -222,7 +236,6 @@ export function MachinesView() {
       {showAddForm && (
         <MachineForm
           machine={null}
-          locationId={locationId}
           onSave={fetchData}
           onClose={() => setShowAddForm(false)}
         />
@@ -232,7 +245,6 @@ export function MachinesView() {
       {editMachine && (
         <MachineForm
           machine={editMachine}
-          locationId={locationId}
           onSave={fetchData}
           onClose={() => setEditMachine(null)}
         />
