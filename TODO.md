@@ -85,9 +85,17 @@
 - [x] File download / open link (signed URL, 1-hour expiry)
 - [x] Associate file with machine record (optional machine dropdown on upload)
 
+### Desktop Packaging (Electron)
+- [x] `electron/main.cjs` main process — loads the live dev server in dev (`ELECTRON_START_URL`) or the built `dist/index.html` in production
+- [x] `pnpm electron:dev` — run the desktop shell against the running `pnpm dev` server
+- [x] `pnpm electron:build` — builds the app and packages a Windows NSIS installer via electron-builder into `release/`
+- [x] Confirmed working end-to-end: installed the built `Setup.exe` and launched the standalone app (no dev server), loaded correctly and connected to Supabase
+- [x] Since the app already uses a cloud-hosted Supabase project, installing this on multiple laptops means they all share the same live data automatically — no additional sync work needed
+
 ## Bugs
 
 - [x] Sidebar location switcher defaulted to whichever location sorted first alphabetically, not necessarily the one with existing machines/data — made machines appear "missing" when a new location alphabetically preceded the venue holding the data. Fixed by defaulting the switcher to a new "All Locations" option instead of the first location.
+- [x] `pnpm electron:build` failed every time with `EPERM: operation not permitted, rename ... win-unpacked.tmp -> win-unpacked` on this Windows machine (electron-builder's default flow downloads Electron, extracts it to a temp folder, then renames it into place — the rename step was reliably blocked). A Windows Defender exclusion and disabling Controlled Folder Access did **not** fix it, so the root cause is still unconfirmed (something else on this machine intercepts directory renames of freshly-written folders containing `.exe`/`.dll` files). Worked around by setting `"electronDist": "node_modules/electron/dist"` in the `build` config in `package.json`, which makes electron-builder copy the already-installed local Electron distribution directly into the output folder instead of downloading/extracting/renaming its own copy. If this machine's actual root cause is ever identified, the `electronDist` override can be removed.
 
 ## Open Questions
 
