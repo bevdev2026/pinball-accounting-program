@@ -92,11 +92,11 @@ on conflict (name) do nothing;
 -- ============================================================
 -- EXPENSES
 -- ============================================================
-create type expense_source as enum ('manual', 'maintenance_log');
+create type expense_source as enum ('manual', 'maintenance_log', 'bank_import');
 
 create table if not exists expenses (
   id                  uuid primary key default gen_random_uuid(),
-  location_id         uuid not null references locations(id),
+  location_id         uuid references locations(id),
   date                date not null,
   category_id         uuid not null references expense_categories(id),
   amount              numeric(10, 2) not null,
@@ -153,13 +153,16 @@ create table if not exists machine_revenue (
 -- ============================================================
 -- NON-MACHINE REVENUE
 -- ============================================================
+create type revenue_source as enum ('manual', 'bank_import');
+
 create table if not exists non_machine_revenue (
   id          uuid primary key default gen_random_uuid(),
-  location_id uuid not null references locations(id),
+  location_id uuid references locations(id),
   date        date not null,
   category_id uuid not null references revenue_categories(id),
   amount      numeric(10, 2) not null,
   notes       text,
+  source      revenue_source not null default 'manual',
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );

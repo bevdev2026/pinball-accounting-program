@@ -4,12 +4,12 @@ import { supabase } from '@/lib/supabase'
 import type { Expense, ExpenseCategory, ActiveMachine } from './types'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog'
 import { Button } from '../ui/button'
+import { useActiveLocation } from '../../context/LocationContext'
 
 interface Props {
   expense: Expense | null
   categories: ExpenseCategory[]
   machines: ActiveMachine[]
-  locationId: string
   onSave: () => void
   onClose: () => void
 }
@@ -36,9 +36,11 @@ const labelStyle: React.CSSProperties = {
   color: 'var(--text-muted)',
 }
 
-export function ExpenseForm({ expense, categories, machines, locationId, onSave, onClose }: Props) {
+export function ExpenseForm({ expense, categories, machines, onSave, onClose }: Props) {
   const isEdit = expense !== null
+  const { locations } = useActiveLocation()
   const [date, setDate] = useState(expense?.date ?? new Date().toISOString().split('T')[0])
+  const [locationId, setLocationId] = useState(expense?.location_id ?? '')
   const [categoryId, setCategoryId] = useState(expense?.category_id ?? categories[0]?.id ?? '')
   const [amount, setAmount] = useState(expense?.amount?.toString() ?? '')
   const [description, setDescription] = useState(expense?.description ?? '')
@@ -48,6 +50,7 @@ export function ExpenseForm({ expense, categories, machines, locationId, onSave,
 
   useEffect(() => {
     setDate(expense?.date ?? new Date().toISOString().split('T')[0])
+    setLocationId(expense?.location_id ?? '')
     setCategoryId(expense?.category_id ?? categories[0]?.id ?? '')
     setAmount(expense?.amount?.toString() ?? '')
     setDescription(expense?.description ?? '')
@@ -62,7 +65,7 @@ export function ExpenseForm({ expense, categories, machines, locationId, onSave,
     if (!amount || isNaN(amountVal) || amountVal <= 0) { toast.error('Enter a valid amount.'); return }
 
     const payload = {
-      location_id: locationId,
+      location_id: locationId || null,
       date,
       category_id: categoryId,
       amount: amountVal,
@@ -116,6 +119,14 @@ export function ExpenseForm({ expense, categories, machines, locationId, onSave,
                 />
               </div>
             </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Location (optional)</label>
+            <select style={{ ...inputStyle, cursor: 'pointer' }} value={locationId} onChange={e => setLocationId(e.target.value)}>
+              <option value="">— No specific location (business-wide) —</option>
+              {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+            </select>
           </div>
 
           <div>

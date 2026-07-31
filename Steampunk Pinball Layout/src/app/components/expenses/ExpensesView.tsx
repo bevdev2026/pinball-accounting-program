@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Plus, Pencil, Trash2, Settings, Wrench, Paperclip } from 'lucide-react'
+import { Plus, Pencil, Trash2, Settings, Wrench, Paperclip, Landmark } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { Expense, ExpenseCategory, ActiveMachine } from './types'
 import { ExpenseForm } from './ExpenseForm'
 import { ExpenseCategoryManager } from './ExpenseCategoryManager'
 import { Button } from '../ui/button'
-import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
 function formatDate(d: string) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -25,8 +24,6 @@ const colHeader: React.CSSProperties = {
 }
 
 export function ExpensesView() {
-  const { activeLocationId } = useActiveLocation()
-  const showingAllLocations = activeLocationId === ALL_LOCATIONS_ID
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [categories, setCategories] = useState<ExpenseCategory[]>([])
   const [machines, setMachines] = useState<ActiveMachine[]>([])
@@ -45,24 +42,20 @@ export function ExpensesView() {
   }, [])
 
   const fetchExpenses = useCallback(async () => {
-    if (!activeLocationId || showingAllLocations) { setExpenses([]); setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('expenses')
-      .select('*, expense_categories(name), machines(name)')
-      .eq('location_id', activeLocationId)
+      .select('*, expense_categories(name), machines(name), locations(name)')
       .order('date', { ascending: false })
     if (data) setExpenses(data)
     setLoading(false)
-  }, [activeLocationId, showingAllLocations])
+  }, [])
 
   useEffect(() => {
     async function init() {
-      if (!activeLocationId || showingAllLocations) { setMachines([]); return }
       const { data: m } = await supabase
         .from('machines')
         .select('id, name, status')
-        .eq('location_id', activeLocationId)
         .eq('is_archived', false)
         .neq('status', 'Retired')
         .order('name')
@@ -71,7 +64,7 @@ export function ExpensesView() {
     init()
     fetchCategories()
     fetchExpenses()
-  }, [activeLocationId, showingAllLocations, fetchCategories, fetchExpenses])
+  }, [fetchCategories, fetchExpenses])
 
   async function handleDelete(id: string) {
     setDeleting(true)
@@ -119,24 +112,16 @@ export function ExpensesView() {
             <Settings size={13} />
             Categories
           </Button>
-          {!showingAllLocations && (
-            <Button
-              onClick={() => { setEditExpense(null); setShowForm(true) }}
-              style={{ backgroundColor: 'var(--copper-base)', color: 'var(--text-heading)' }}
-            >
-              <Plus size={15} />
-              Add Expense
-            </Button>
-          )}
+          <Button
+            onClick={() => { setEditExpense(null); setShowForm(true) }}
+            style={{ backgroundColor: 'var(--copper-base)', color: 'var(--text-heading)' }}
+          >
+            <Plus size={15} />
+            Add Expense
+          </Button>
         </div>
       </div>
 
-      {showingAllLocations ? (
-        <div className="p-8 text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '14px' }}>
-          Select a specific location from the sidebar to view and manage Expenses.
-        </div>
-      ) : (
-        <>
       {/* Totals bar */}
       {expenses.length > 0 && (
         <div
@@ -213,8 +198,9 @@ export function ExpensesView() {
 
       {/* Table */}
       <div style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
-        <div className="grid" style={{ gridTemplateColumns: '120px 160px 110px 1fr 160px 40px 72px', borderBottom: '1px solid var(--copper-dark)' }}>
+        <div className="grid" style={{ gridTemplateColumns: '120px 130px 160px 110px 1fr 160px 40px 72px', borderBottom: '1px solid var(--copper-dark)' }}>
           <div style={colHeader}>DATE</div>
+          <div style={colHeader}>LOCATION</div>
           <div style={colHeader}>CATEGORY</div>
           <div style={colHeader}>AMOUNT</div>
           <div style={colHeader}>DESCRIPTION</div>
@@ -236,10 +222,13 @@ export function ExpensesView() {
               <div
                 key={expense.id}
                 className="grid items-center"
-                style={{ gridTemplateColumns: '120px 160px 110px 1fr 160px 40px 72px', borderBottom: isLast ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
+                style={{ gridTemplateColumns: '120px 130px 160px 110px 1fr 160px 40px 72px', borderBottom: isLast ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
               >
                 <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '13px' }}>
                   {formatDate(expense.date)}
+                </div>
+                <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-muted)', fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {expense.locations?.name ?? '—'}
                 </div>
                 <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-primary)', fontSize: '14px' }}>
                   {expense.expense_categories?.name ?? '—'}
@@ -258,6 +247,11 @@ export function ExpensesView() {
                   {expense.source === 'maintenance_log' && (
                     <span title="Auto-created from maintenance log">
                       <Wrench size={12} style={{ color: 'var(--patina-light)', opacity: 0.8 }} />
+                    </span>
+                  )}
+                  {expense.source === 'bank_import' && (
+                    <span title="Imported from bank CSV">
+                      <Landmark size={12} style={{ color: 'var(--steel-light)', opacity: 0.8 }} />
                     </span>
                   )}
                   {expense.file_url && (
@@ -297,15 +291,12 @@ export function ExpensesView() {
           {filtered.length} {filtered.length === 1 ? 'EXPENSE' : 'EXPENSES'}
         </div>
       )}
-        </>
-      )}
 
       {showForm && (
         <ExpenseForm
           expense={editExpense}
           categories={categories}
           machines={machines}
-          locationId={activeLocationId}
           onSave={fetchExpenses}
           onClose={() => { setShowForm(false); setEditExpense(null) }}
         />

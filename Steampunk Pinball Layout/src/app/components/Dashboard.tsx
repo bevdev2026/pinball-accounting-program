@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Sun, Moon, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { KPICard } from './KPICard';
 import { RevenueChart } from './RevenueChart';
@@ -10,6 +10,11 @@ import { LoansSummary } from './LoansSummary';
 import type { LoanSummaryItem } from './LoansSummary';
 import { calcLoanStatus } from './liabilities/calcLoanStatus';
 import type { Loan } from './liabilities/types';
+import { BankImportModal } from './BankImportModal';
+import { Button } from './ui/button';
+import { useActiveLocation } from '../context/LocationContext';
+import type { ExpenseCategory } from './expenses/types';
+import type { RevenueCategory } from './revenue/types';
 
 interface Agreement {
   type: 'flat_fee' | 'percentage' | 'combination';
@@ -154,9 +159,26 @@ export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onTogg
   const [loans, setLoans] = useState<LoanSummaryItem[]>([]);
   const agreementRef = useRef<Agreement | null>(null);
 
-  // ── Mount: KPI, maintenance, loans ──────────────────────────────────────
+  // Bank CSV import
+  const { locations } = useActiveLocation();
+  const [showImport, setShowImport] = useState(false);
+  const [expenseCategories, setExpenseCategories] = useState<ExpenseCategory[]>([]);
+  const [revenueCategories, setRevenueCategories] = useState<RevenueCategory[]>([]);
+
   useEffect(() => {
-    async function fetchKpiAndMeta() {
+    async function fetchImportCategories() {
+      const [expCatRes, revCatRes] = await Promise.all([
+        supabase.from('expense_categories').select('*').order('name'),
+        supabase.from('revenue_categories').select('*').order('name'),
+      ]);
+      if (expCatRes.data) setExpenseCategories(expCatRes.data);
+      if (revCatRes.data) setRevenueCategories(revCatRes.data);
+    }
+    fetchImportCategories();
+  }, []);
+
+  // ── KPI, maintenance, loans ────────────────────────────────────────────
+  const fetchKpiAndMeta = useCallback(async () => {
       setKpiLoading(true);
       const now = new Date();
       const year = now.getFullYear();
@@ -225,41 +247,43 @@ export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onTogg
       }));
 
       setKpiLoading(false);
-    }
-
-    fetchKpiAndMeta();
   }, []);
 
+  useEffect(() => { fetchKpiAndMeta(); }, [fetchKpiAndMeta]);
+
   // ── Chart data: re-runs when range or custom dates change ────────────────
-  useEffect(() => {
+  const fetchChartData = useCallback(async () => {
     // Skip custom range until both dates are set
     if (chartRange === 'custom' && !customFrom) return;
 
-    async function fetchChartData() {
-      setChartLoading(true);
+    setChartLoading(true);
 
-      const series = buildSeries(chartRange, customFrom, customTo);
-      if (series.length === 0) { setChartLoading(false); return; }
+    const series = buildSeries(chartRange, customFrom, customTo);
+    if (series.length === 0) { setChartLoading(false); return; }
 
-      const fromDate = series[0].key + (series[0].groupBy === 'day' ? '' : '-01');
-      const now = new Date();
-      const toDate = chartRange === 'custom' && customTo ? customTo : now.toISOString().split('T')[0];
+    const fromDate = series[0].key + (series[0].groupBy === 'day' ? '' : '-01');
+    const now = new Date();
+    const toDate = chartRange === 'custom' && customTo ? customTo : now.toISOString().split('T')[0];
 
-      const [mrRes, nmrRes, expRes] = await Promise.all([
-        supabase.from('machine_revenue').select('collection_date,coin,bill_drop,card,phone_tap').gte('collection_date', fromDate).lte('collection_date', toDate),
-        supabase.from('non_machine_revenue').select('date,amount').gte('date', fromDate).lte('date', toDate),
-        supabase.from('expenses').select('date,amount').gte('date', fromDate).lte('date', toDate),
-      ]);
+    const [mrRes, nmrRes, expRes] = await Promise.all([
+      supabase.from('machine_revenue').select('collection_date,coin,bill_drop,card,phone_tap').gte('collection_date', fromDate).lte('collection_date', toDate),
+      supabase.from('non_machine_revenue').select('date,amount').gte('date', fromDate).lte('date', toDate),
+      supabase.from('expenses').select('date,amount').gte('date', fromDate).lte('date', toDate),
+    ]);
 
-      const { gross, exp, profit } = computeChartData(series, mrRes.data ?? [], nmrRes.data ?? [], expRes.data ?? [], agreementRef.current);
-      setGrossChart(gross);
-      setExpChart(exp);
-      setProfitChart(profit);
-      setChartLoading(false);
-    }
-
-    fetchChartData();
+    const { gross, exp, profit } = computeChartData(series, mrRes.data ?? [], nmrRes.data ?? [], expRes.data ?? [], agreementRef.current);
+    setGrossChart(gross);
+    setExpChart(exp);
+    setProfitChart(profit);
+    setChartLoading(false);
   }, [chartRange, customFrom, customTo]);
+
+  useEffect(() => { fetchChartData(); }, [fetchChartData]);
+
+  function handleImportSaved() {
+    fetchKpiAndMeta();
+    fetchChartData();
+  }
 
   const netProfit = netMonth - expMonth;
   const netProfitYtd = netYtd - expYtd;
@@ -275,28 +299,39 @@ export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onTogg
             FINANCIAL OVERVIEW & OPERATIONAL STATUS
           </p>
         </div>
-        <button
-          onClick={onToggleTheme}
-          title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            backgroundColor: 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--text-secondary)',
-            fontFamily: 'var(--font-heading)',
-            fontSize: '11px',
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-          }}
-        >
-          {isLight ? <Moon size={14} /> : <Sun size={14} />}
-          {isLight ? 'Dark Mode' : 'Light Mode'}
-        </button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowImport(true)}
+            style={{ borderColor: 'var(--copper-dark)', color: 'var(--text-muted)' }}
+          >
+            <Upload size={13} />
+            Import Bank CSV
+          </Button>
+          <button
+            onClick={onToggleTheme}
+            title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              backgroundColor: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-heading)',
+              fontSize: '11px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+            }}
+          >
+            {isLight ? <Moon size={14} /> : <Sun size={14} />}
+            {isLight ? 'Dark Mode' : 'Light Mode'}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-6">
@@ -337,6 +372,16 @@ export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onTogg
         <MaintenanceAlerts alerts={alerts} loading={kpiLoading} />
         <LoansSummary loans={loans} loading={kpiLoading} />
       </div>
+
+      {showImport && (
+        <BankImportModal
+          expenseCategories={expenseCategories}
+          revenueCategories={revenueCategories}
+          locations={locations}
+          onSaved={handleImportSaved}
+          onClose={() => setShowImport(false)}
+        />
+      )}
     </div>
   );
 }

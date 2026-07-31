@@ -16,14 +16,16 @@ export type MachineRevenue = {
 
 export type NonMachineRevenue = {
   id: string
-  location_id: string
+  location_id: string | null
   date: string
   category_id: string
   amount: number
   notes: string | null
+  source: 'manual' | 'bank_import'
   created_at: string
   updated_at: string
   revenue_categories?: { name: string }
+  locations?: { name: string } | null
 }
 
 export type RevenueCategory = {

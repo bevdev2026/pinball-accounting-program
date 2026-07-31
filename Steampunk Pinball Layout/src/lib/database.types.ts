@@ -2,7 +2,8 @@ export type MachineStatus = 'Active' | 'Out of Service' | 'Retired'
 export type CompoundingInterval = 'daily' | 'weekly' | 'monthly'
 export type PaymentFrequency = 'weekly' | 'biweekly' | 'monthly'
 export type RentCommissionType = 'flat_fee' | 'percentage' | 'combination'
-export type ExpenseSource = 'manual' | 'maintenance_log'
+export type ExpenseSource = 'manual' | 'maintenance_log' | 'bank_import'
+export type RevenueSource = 'manual' | 'bank_import'
 
 export interface Database {
   public: {
@@ -194,31 +195,34 @@ export interface Database {
       non_machine_revenue: {
         Row: {
           id: string
-          location_id: string
+          location_id: string | null
           date: string
           category_id: string
           amount: number
           notes: string | null
+          source: RevenueSource
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          location_id: string
+          location_id?: string | null
           date: string
           category_id: string
           amount: number
           notes?: string | null
+          source?: RevenueSource
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          location_id?: string
+          location_id?: string | null
           date?: string
           category_id?: string
           amount?: number
           notes?: string | null
+          source?: RevenueSource
           updated_at?: string
         }
       }
@@ -244,7 +248,7 @@ export interface Database {
       expenses: {
         Row: {
           id: string
-          location_id: string
+          location_id: string | null
           date: string
           category_id: string
           amount: number
@@ -258,7 +262,7 @@ export interface Database {
         }
         Insert: {
           id?: string
-          location_id: string
+          location_id?: string | null
           date: string
           category_id: string
           amount: number
@@ -272,7 +276,7 @@ export interface Database {
         }
         Update: {
           id?: string
-          location_id?: string
+          location_id?: string | null
           date?: string
           category_id?: string
           amount?: number

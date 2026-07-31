@@ -4,11 +4,11 @@ import { supabase } from '@/lib/supabase'
 import type { NonMachineRevenue, RevenueCategory } from './types'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog'
 import { Button } from '../ui/button'
+import { useActiveLocation } from '../../context/LocationContext'
 
 interface Props {
   entry: NonMachineRevenue | null
   categories: RevenueCategory[]
-  locationId: string
   onSave: () => void
   onClose: () => void
 }
@@ -35,10 +35,12 @@ const labelStyle: React.CSSProperties = {
   color: 'var(--text-muted)',
 }
 
-export function NonMachineRevenueForm({ entry, categories, locationId, onSave, onClose }: Props) {
+export function NonMachineRevenueForm({ entry, categories, onSave, onClose }: Props) {
   const isEdit = entry !== null
+  const { locations } = useActiveLocation()
   const [categoryId, setCategoryId] = useState(entry?.category_id ?? categories[0]?.id ?? '')
   const [date, setDate] = useState(entry?.date ?? new Date().toISOString().split('T')[0])
+  const [locationId, setLocationId] = useState(entry?.location_id ?? '')
   const [amount, setAmount] = useState(entry?.amount?.toString() ?? '')
   const [notes, setNotes] = useState(entry?.notes ?? '')
   const [saving, setSaving] = useState(false)
@@ -46,6 +48,7 @@ export function NonMachineRevenueForm({ entry, categories, locationId, onSave, o
   useEffect(() => {
     setCategoryId(entry?.category_id ?? categories[0]?.id ?? '')
     setDate(entry?.date ?? new Date().toISOString().split('T')[0])
+    setLocationId(entry?.location_id ?? '')
     setAmount(entry?.amount?.toString() ?? '')
     setNotes(entry?.notes ?? '')
   }, [entry, categories])
@@ -57,7 +60,7 @@ export function NonMachineRevenueForm({ entry, categories, locationId, onSave, o
     if (!amount || isNaN(amountVal) || amountVal <= 0) { toast.error('Enter a valid amount.'); return }
 
     const payload = {
-      location_id: locationId,
+      location_id: locationId || null,
       date,
       category_id: categoryId,
       amount: amountVal,
@@ -99,6 +102,14 @@ export function NonMachineRevenueForm({ entry, categories, locationId, onSave, o
                 <label style={labelStyle}>Category *</label>
                 <select style={{ ...inputStyle, cursor: 'pointer' }} value={categoryId} onChange={e => setCategoryId(e.target.value)}>
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Location (optional)</label>
+                <select style={{ ...inputStyle, cursor: 'pointer' }} value={locationId} onChange={e => setLocationId(e.target.value)}>
+                  <option value="">— No specific location (business-wide) —</option>
+                  {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
                 </select>
               </div>
 

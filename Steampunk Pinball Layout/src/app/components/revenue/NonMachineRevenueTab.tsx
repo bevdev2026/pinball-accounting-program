@@ -1,15 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Plus, Pencil, Trash2, Settings } from 'lucide-react'
+import { Plus, Pencil, Trash2, Settings, Landmark } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { NonMachineRevenue, RevenueCategory } from './types'
 import { NonMachineRevenueForm } from './NonMachineRevenueForm'
 import { CategoryManager } from './CategoryManager'
 import { Button } from '../ui/button'
-
-interface Props {
-  locationId: string
-}
 
 function formatDate(d: string) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -27,7 +23,7 @@ const colHeader: React.CSSProperties = {
   padding: '10px 12px',
 }
 
-export function NonMachineRevenueTab({ locationId }: Props) {
+export function NonMachineRevenueTab() {
   const [entries, setEntries] = useState<NonMachineRevenue[]>([])
   const [categories, setCategories] = useState<RevenueCategory[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,16 +39,14 @@ export function NonMachineRevenueTab({ locationId }: Props) {
   }, [])
 
   const fetchEntries = useCallback(async () => {
-    if (!locationId) { setEntries([]); setLoading(false); return }
     setLoading(true)
     const { data } = await supabase
       .from('non_machine_revenue')
-      .select('*, revenue_categories(name)')
-      .eq('location_id', locationId)
+      .select('*, revenue_categories(name), locations(name)')
       .order('date', { ascending: false })
     if (data) setEntries(data)
     setLoading(false)
-  }, [locationId])
+  }, [])
 
   useEffect(() => {
     fetchCategories()
@@ -105,8 +99,9 @@ export function NonMachineRevenueTab({ locationId }: Props) {
 
       {/* Table */}
       <div style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
-        <div className="grid" style={{ gridTemplateColumns: '130px 160px 120px 1fr 64px', borderBottom: '1px solid var(--copper-dark)' }}>
+        <div className="grid" style={{ gridTemplateColumns: '130px 130px 160px 120px 1fr 64px', borderBottom: '1px solid var(--copper-dark)' }}>
           <div style={colHeader}>DATE</div>
+          <div style={colHeader}>LOCATION</div>
           <div style={colHeader}>CATEGORY</div>
           <div style={colHeader}>AMOUNT</div>
           <div style={colHeader}>NOTES</div>
@@ -126,10 +121,13 @@ export function NonMachineRevenueTab({ locationId }: Props) {
               <div
                 key={entry.id}
                 className="grid items-center"
-                style={{ gridTemplateColumns: '130px 160px 120px 1fr 64px', borderBottom: isLast ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
+                style={{ gridTemplateColumns: '130px 130px 160px 120px 1fr 64px', borderBottom: isLast ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
               >
                 <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '13px' }}>
                   {formatDate(entry.date)}
+                </div>
+                <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-muted)', fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {entry.locations?.name ?? '—'}
                 </div>
                 <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-primary)', fontSize: '14px' }}>
                   {entry.revenue_categories?.name ?? '—'}
@@ -137,8 +135,13 @@ export function NonMachineRevenueTab({ locationId }: Props) {
                 <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-heading)', fontSize: '14px', fontWeight: 'bold' }}>
                   {formatMoney(entry.amount)}
                 </div>
-                <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-muted)', fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {entry.notes ?? '—'}
+                <div className="flex items-center gap-2" style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-muted)', fontSize: '13px', overflow: 'hidden' }}>
+                  {entry.source === 'bank_import' && (
+                    <span title="Imported from bank CSV" style={{ flexShrink: 0 }}>
+                      <Landmark size={12} style={{ color: 'var(--steel-light)', opacity: 0.8 }} />
+                    </span>
+                  )}
+                  <span style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>{entry.notes ?? '—'}</span>
                 </div>
                 <div style={{ padding: '12px' }} className="flex gap-1 items-center justify-end">
                   {confirmDelete === entry.id ? (
@@ -168,7 +171,6 @@ export function NonMachineRevenueTab({ locationId }: Props) {
         <NonMachineRevenueForm
           entry={editEntry}
           categories={categories}
-          locationId={locationId}
           onSave={fetchEntries}
           onClose={() => { setShowForm(false); setEditEntry(null) }}
         />

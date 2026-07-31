@@ -53,29 +53,27 @@ export function RevenueView() {
         </p>
       </div>
 
-      {showingAllLocations ? (
-        <div className="p-8 text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '14px' }}>
-          Select a specific location from the sidebar to view and manage Revenue.
-        </div>
-      ) : (
-        <>
-          {/* Tab bar */}
-          <div style={{ borderBottom: '1px solid var(--copper-dark)' }}>
-            <button style={tabStyle(activeTab === 'machine')} onClick={() => setActiveTab('machine')}>
-              MACHINE REVENUE
-            </button>
-            <button style={tabStyle(activeTab === 'other')} onClick={() => setActiveTab('other')}>
-              OTHER REVENUE
-            </button>
-          </div>
+      {/* Tab bar */}
+      <div style={{ borderBottom: '1px solid var(--copper-dark)' }}>
+        <button style={tabStyle(activeTab === 'machine')} onClick={() => setActiveTab('machine')}>
+          MACHINE REVENUE
+        </button>
+        <button style={tabStyle(activeTab === 'other')} onClick={() => setActiveTab('other')}>
+          OTHER REVENUE
+        </button>
+      </div>
 
-          {/* Tab content */}
-          {activeTab === 'machine' ? (
-            <MachineRevenueTab locationId={activeLocationId} machines={machines} />
-          ) : (
-            <NonMachineRevenueTab locationId={activeLocationId} />
-          )}
-        </>
+      {/* Tab content */}
+      {activeTab === 'machine' ? (
+        showingAllLocations ? (
+          <div className="p-8 text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '14px' }}>
+            Select a specific location from the sidebar to view and manage Machine Revenue.
+          </div>
+        ) : (
+          <MachineRevenueTab locationId={activeLocationId} machines={machines} />
+        )
+      ) : (
+        <NonMachineRevenueTab />
       )}
     </div>
   )
