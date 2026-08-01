@@ -3,15 +3,21 @@ import { supabase } from '@/lib/supabase'
 import type { ActiveMachine } from './types'
 import { MachineRevenueTab } from './MachineRevenueTab'
 import { NonMachineRevenueTab } from './NonMachineRevenueTab'
+import { useLocationMonthRevenue } from '../rent/calcPayout'
 import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
 type Tab = 'machine' | 'other'
+
+function formatMoney(v: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(v)
+}
 
 export function RevenueView() {
   const { activeLocationId } = useActiveLocation()
   const showingAllLocations = activeLocationId === ALL_LOCATIONS_ID
   const [activeTab, setActiveTab] = useState<Tab>('machine')
   const [machines, setMachines] = useState<ActiveMachine[]>([])
+  const netRevenue = useLocationMonthRevenue(showingAllLocations ? '' : activeLocationId)
 
   useEffect(() => {
     async function init() {
@@ -52,6 +58,29 @@ export function RevenueView() {
           MACHINE COLLECTIONS & OTHER REVENUE
         </p>
       </div>
+
+      {/* Net revenue summary (current location, month-to-date) */}
+      {!showingAllLocations && !netRevenue.loading && (
+        <div
+          className="flex items-center gap-8 p-4 rounded-lg"
+          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)' }}
+        >
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>GROSS REVENUE (MTD)</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', color: 'var(--text-heading)', marginTop: '3px' }}>{formatMoney(netRevenue.gross)}</div>
+          </div>
+          <div style={{ color: 'var(--text-muted)' }}>−</div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>COMMISSION</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', color: 'var(--destructive)', marginTop: '3px' }}>{formatMoney(netRevenue.commission)}</div>
+          </div>
+          <div style={{ color: 'var(--text-muted)' }}>=</div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>NET REVENUE (MTD)</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', color: 'var(--gold-base)', fontWeight: 'bold', marginTop: '3px' }}>{formatMoney(netRevenue.net)}</div>
+          </div>
+        </div>
+      )}
 
       {/* Tab bar */}
       <div style={{ borderBottom: '1px solid var(--copper-dark)' }}>

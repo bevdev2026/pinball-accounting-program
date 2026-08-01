@@ -3,6 +3,7 @@ import { Plus, Pencil } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { Agreement } from './types'
 import { RentAgreementForm } from './RentAgreementForm'
+import { useLocationMonthRevenue } from './calcPayout'
 import { Button } from '../ui/button'
 import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
@@ -61,6 +62,8 @@ export function RentView() {
   const [agreements, setAgreements] = useState<Agreement[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const payout = useLocationMonthRevenue(showingAllLocations ? '' : activeLocationId)
+  const monthLabel = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()
 
   const fetchAgreements = useCallback(async () => {
     if (!activeLocationId || showingAllLocations) { setAgreements([]); setLoading(false); return }
@@ -136,10 +139,34 @@ export function RentView() {
               EFFECTIVE {formatDate(activeAgreement.effective_date)}
             </div>
             {activeAgreement.notes && (
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-secondary)', borderTop: '1px solid var(--copper-dark)', paddingTop: '12px', marginTop: '4px', opacity: 0.8 }}>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-secondary)', opacity: 0.8 }}>
                 {activeAgreement.notes}
               </div>
             )}
+
+            <div style={{ borderTop: '1px solid var(--copper-dark)', paddingTop: '14px', marginTop: '4px' }}>
+              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                {monthLabel} PAYOUT (MONTH-TO-DATE)
+              </div>
+              {payout.loading ? (
+                <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-heading)', fontSize: '11px', letterSpacing: '0.08em' }}>CALCULATING…</div>
+              ) : (
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '9px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>GROSS REVENUE</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', color: 'var(--text-heading)', marginTop: '3px' }}>{formatMoney(payout.gross)}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '9px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>COMMISSION OWED</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', color: 'var(--destructive)', marginTop: '3px' }}>-{formatMoney(payout.commission)}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '9px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>NET TO VENUE</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', color: 'var(--gold-base)', fontWeight: 'bold', marginTop: '3px' }}>{formatMoney(payout.net)}</div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="space-y-2">

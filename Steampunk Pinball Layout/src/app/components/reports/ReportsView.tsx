@@ -4,6 +4,8 @@ import { Download } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { calcLoanStatus } from '../liabilities/calcLoanStatus'
 import type { Loan } from '../liabilities/types'
+import { sumNetByLocation } from '../rent/calcPayout'
+import type { Agreement } from '../rent/types'
 import { Button } from '../ui/button'
 
 // ── CSV helpers ────────────────────────────────────────────────────────────────
@@ -128,17 +130,13 @@ export function ReportsView() {
       const { data, error } = await q
       if (error || !data) { toast.error('Failed to fetch machine revenue.'); return }
 
-      const headers = ['Machine', 'Collection Date', 'Period Start', 'Period End', 'Coin', 'Bill Drop', 'Card', 'Phone Tap', 'Total']
+      const headers = ['Machine', 'Collection Date', 'Period Start', 'Period End', 'Amount']
       const rows = data.map((r: any) => [
         r.machines?.name ?? '',
         r.collection_date,
         r.collection_period_start,
         r.collection_period_end,
-        fmt(r.coin),
-        fmt(r.bill_drop),
-        fmt(r.card),
-        fmt(r.phone_tap),
-        fmt((r.coin ?? 0) + (r.bill_drop ?? 0) + (r.card ?? 0) + (r.phone_tap ?? 0)),
+        fmt(r.amount),
       ])
       downloadCsv(`machine-revenue-${slug()}.csv`, buildCsv(headers, rows))
       toast.success(`Exported ${rows.length} rows.`)
@@ -262,11 +260,11 @@ export function ReportsView() {
       // Fetch all revenue and expenses for the period
       const [mrQ, nmrQ, expQ, agreeQ] = await Promise.all([
         applyDateFilter(
-          supabase.from('machine_revenue').select('coin, bill_drop, card, phone_tap') as any,
+          supabase.from('machine_revenue').select('amount,location_id') as any,
           'collection_date'
         ).then((r: any) => r),
         applyDateFilter(
-          supabase.from('non_machine_revenue').select('amount') as any,
+          supabase.from('non_machine_revenue').select('amount,location_id') as any,
           'date'
         ).then((r: any) => r),
         applyDateFilter(
@@ -277,38 +275,28 @@ export function ReportsView() {
           .from('rent_commission_agreements')
           .select('*')
           .is('end_date', null)
-          .single()
           .then((r: any) => r),
       ])
 
       const machineRevenue = (mrQ.data ?? []).reduce(
-        (sum: number, r: any) => sum + (r.coin ?? 0) + (r.bill_drop ?? 0) + (r.card ?? 0) + (r.phone_tap ?? 0), 0
+        (sum: number, r: any) => sum + (r.amount ?? 0), 0
       )
       const otherRevenue = (nmrQ.data ?? []).reduce((sum: number, r: any) => sum + (r.amount ?? 0), 0)
       const grossRevenue = machineRevenue + otherRevenue
       const totalExpenses = (expQ.data ?? []).reduce((sum: number, r: any) => sum + (r.amount ?? 0), 0)
 
-      // Calculate rent deduction from active agreement
-      let rentDeduction = 0
-      let rentNote = 'No active agreement'
-      const agree = agreeQ.data
-      if (agree) {
-        if (agree.type === 'flat_fee') {
-          rentDeduction = agree.flat_fee_amount ?? 0
-          rentNote = `Flat fee: $${rentDeduction.toFixed(2)}`
-        } else if (agree.type === 'percentage') {
-          rentDeduction = grossRevenue * (agree.percentage_rate ?? 0)
-          rentNote = `${((agree.percentage_rate ?? 0) * 100).toFixed(2)}% of gross`
-        } else if (agree.type === 'combination') {
-          const base = agree.flat_fee_amount ?? 0
-          const threshold = agree.revenue_threshold ?? 0
-          const pctPortion = grossRevenue > threshold ? (grossRevenue - threshold) * (agree.percentage_rate ?? 0) : 0
-          rentDeduction = base + pctPortion
-          rentNote = `$${base.toFixed(2)} flat + ${((agree.percentage_rate ?? 0) * 100).toFixed(2)}% above $${threshold.toFixed(2)}`
-        }
-      }
+      // Rent & commission is calculated per location, using each location's own
+      // active agreement, then summed — a single global rate no longer applies
+      // now that each location can carry its own agreement.
+      const agreementsByLocation = new Map<string, Agreement>(
+        ((agreeQ.data ?? []) as Agreement[]).map(a => [a.location_id, a])
+      )
+      const { net: netRevenue } = sumNetByLocation(mrQ.data ?? [], nmrQ.data ?? [], agreementsByLocation)
+      const rentDeduction = grossRevenue - netRevenue
+      const rentNote = agreementsByLocation.size > 0
+        ? `Per-location agreements (${agreementsByLocation.size} active)`
+        : 'No active agreements'
 
-      const netRevenue = grossRevenue - rentDeduction
       const netProfit = netRevenue - totalExpenses
 
       const periodLabel = from && to ? `${from} to ${to}` : from ? `from ${from}` : to ? `to ${to}` : 'All Time'
@@ -337,7 +325,7 @@ export function ReportsView() {
   // ── UI ────────────────────────────────────────────────────────────────────
 
   const exports: { key: string; title: string; desc: string; handler: () => Promise<void> }[] = [
-    { key: 'machine_revenue', title: 'Machine Revenue', desc: 'All collections by machine and payment type (coin, bill, card, tap)', handler: exportMachineRevenue },
+    { key: 'machine_revenue', title: 'Machine Revenue', desc: 'All collections by machine and collection period', handler: exportMachineRevenue },
     { key: 'non_machine_revenue', title: 'Other Revenue', desc: 'Non-machine revenue by category (tournaments, merchandise, etc.)', handler: exportNonMachineRevenue },
     { key: 'expenses', title: 'Expenses', desc: 'All expenses by category and machine, with source and file attachment flags', handler: exportExpenses },
     { key: 'maintenance_log', title: 'Maintenance Log', desc: 'Full service history by machine, item, date, and cost', handler: exportMaintenanceLog },
