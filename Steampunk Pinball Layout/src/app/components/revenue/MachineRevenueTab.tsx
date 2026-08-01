@@ -68,35 +68,26 @@ export function MachineRevenueTab({ locationId, machines }: Props) {
     setDeleting(false)
   }
 
-  // Summary totals
-  const totals = entries.reduce(
-    (acc, e) => ({ coin: acc.coin + e.coin, bill: acc.bill + e.bill_drop, card: acc.card + e.card, tap: acc.tap + e.phone_tap }),
-    { coin: 0, bill: 0, card: 0, tap: 0 }
-  )
-  const grandTotal = totals.coin + totals.bill + totals.card + totals.tap
+  // Summary total
+  const grandTotal = entries.reduce((sum, e) => sum + e.amount, 0)
 
   return (
     <div className="space-y-4">
       {/* Totals bar */}
       {entries.length > 0 && (
         <div
-          className="grid gap-4 p-4 rounded-lg"
-          style={{ gridTemplateColumns: 'repeat(5, 1fr)', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)' }}
+          className="p-4 rounded-lg flex items-center justify-between"
+          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)' }}
         >
-          {[
-            { label: 'Coin', value: totals.coin },
-            { label: 'Bill Drop', value: totals.bill },
-            { label: 'Card', value: totals.card },
-            { label: 'Phone Tap', value: totals.tap },
-            { label: 'Grand Total', value: grandTotal, highlight: true },
-          ].map(item => (
-            <div key={item.label} className={item.highlight ? 'pl-4' : ''} style={item.highlight ? { borderLeft: '1px solid var(--copper-dark)' } : {}}>
-              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>{item.label.toUpperCase()}</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: item.highlight ? '18px' : '16px', color: item.highlight ? 'var(--gold-base)' : 'var(--text-heading)', marginTop: '4px', fontWeight: 'bold' }}>
-                {formatMoney(item.value)}
-              </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>TOTAL MACHINE REVENUE</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '22px', color: 'var(--gold-base)', marginTop: '4px', fontWeight: 'bold' }}>
+              {formatMoney(grandTotal)}
             </div>
-          ))}
+          </div>
+          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
+            {entries.length} {entries.length === 1 ? 'ENTRY' : 'ENTRIES'}
+          </div>
         </div>
       )}
 
@@ -110,15 +101,11 @@ export function MachineRevenueTab({ locationId, machines }: Props) {
 
       {/* Table */}
       <div style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
-        <div className="grid" style={{ gridTemplateColumns: '160px 120px 180px 80px 80px 80px 80px 90px 72px', borderBottom: '1px solid var(--copper-dark)' }}>
+        <div className="grid" style={{ gridTemplateColumns: '160px 120px 180px 110px 72px', borderBottom: '1px solid var(--copper-dark)' }}>
           <div style={colHeader}>MACHINE</div>
           <div style={colHeader}>COLL. DATE</div>
           <div style={colHeader}>PERIOD</div>
-          <div style={colHeader}>COIN</div>
-          <div style={colHeader}>BILL</div>
-          <div style={colHeader}>CARD</div>
-          <div style={colHeader}>TAP</div>
-          <div style={colHeader}>TOTAL</div>
+          <div style={colHeader}>AMOUNT</div>
           <div style={colHeader} />
         </div>
 
@@ -130,13 +117,12 @@ export function MachineRevenueTab({ locationId, machines }: Props) {
           </div>
         ) : (
           entries.map((entry, i) => {
-            const rowTotal = entry.coin + entry.bill_drop + entry.card + entry.phone_tap
             const isLast = i === entries.length - 1
             return (
               <div
                 key={entry.id}
                 className="grid items-center"
-                style={{ gridTemplateColumns: '160px 120px 180px 80px 80px 80px 80px 90px 72px', borderBottom: isLast ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
+                style={{ gridTemplateColumns: '160px 120px 180px 110px 72px', borderBottom: isLast ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
               >
                 <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-primary)', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {entry.machines?.name ?? '—'}
@@ -147,13 +133,8 @@ export function MachineRevenueTab({ locationId, machines }: Props) {
                 <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', fontSize: '12px' }}>
                   {formatPeriod(entry.collection_period_start, entry.collection_period_end)}
                 </div>
-                {[entry.coin, entry.bill_drop, entry.card, entry.phone_tap].map((val, idx) => (
-                  <div key={idx} style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '13px' }}>
-                    {formatMoney(val)}
-                  </div>
-                ))}
                 <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-heading)', fontSize: '14px', fontWeight: 'bold' }}>
-                  {formatMoney(rowTotal)}
+                  {formatMoney(entry.amount)}
                 </div>
                 <div style={{ padding: '12px' }} className="flex gap-1 items-center justify-end">
                   {confirmDelete === entry.id ? (

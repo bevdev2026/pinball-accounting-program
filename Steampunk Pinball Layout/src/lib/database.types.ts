@@ -157,10 +157,7 @@ export interface Database {
           collection_date: string
           collection_period_start: string
           collection_period_end: string
-          coin: number
-          bill_drop: number
-          card: number
-          phone_tap: number
+          amount: number
           created_at: string
           updated_at: string
         }
@@ -171,10 +168,7 @@ export interface Database {
           collection_date: string
           collection_period_start: string
           collection_period_end: string
-          coin?: number
-          bill_drop?: number
-          card?: number
-          phone_tap?: number
+          amount?: number
           created_at?: string
           updated_at?: string
         }
@@ -185,10 +179,7 @@ export interface Database {
           collection_date?: string
           collection_period_start?: string
           collection_period_end?: string
-          coin?: number
-          bill_drop?: number
-          card?: number
-          phone_tap?: number
+          amount?: number
           updated_at?: string
         }
       }

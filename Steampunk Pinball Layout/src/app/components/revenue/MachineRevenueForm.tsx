@@ -61,10 +61,7 @@ export function MachineRevenueForm({ entry, machines, locationId, onSave, onClos
   const [collectionDate, setCollectionDate] = useState(entry?.collection_date ?? '')
   const [periodStart, setPeriodStart] = useState(entry?.collection_period_start ?? '')
   const [periodEnd, setPeriodEnd] = useState(entry?.collection_period_end ?? '')
-  const [coin, setCoin] = useState(entry?.coin?.toString() ?? '0')
-  const [billDrop, setBillDrop] = useState(entry?.bill_drop?.toString() ?? '0')
-  const [card, setCard] = useState(entry?.card?.toString() ?? '0')
-  const [phoneTap, setPhoneTap] = useState(entry?.phone_tap?.toString() ?? '0')
+  const [amount, setAmount] = useState(entry?.amount?.toString() ?? '0')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -72,13 +69,8 @@ export function MachineRevenueForm({ entry, machines, locationId, onSave, onClos
     setCollectionDate(entry?.collection_date ?? '')
     setPeriodStart(entry?.collection_period_start ?? '')
     setPeriodEnd(entry?.collection_period_end ?? '')
-    setCoin(entry?.coin?.toString() ?? '0')
-    setBillDrop(entry?.bill_drop?.toString() ?? '0')
-    setCard(entry?.card?.toString() ?? '0')
-    setPhoneTap(entry?.phone_tap?.toString() ?? '0')
+    setAmount(entry?.amount?.toString() ?? '0')
   }, [entry, machines])
-
-  const total = [coin, billDrop, card, phoneTap].reduce((sum, v) => sum + (parseFloat(v) || 0), 0)
 
   async function handleSave() {
     if (!machineId) { toast.error('Select a machine.'); return }
@@ -92,10 +84,7 @@ export function MachineRevenueForm({ entry, machines, locationId, onSave, onClos
       collection_date: collectionDate,
       collection_period_start: periodStart,
       collection_period_end: periodEnd,
-      coin: parseFloat(coin) || 0,
-      bill_drop: parseFloat(billDrop) || 0,
-      card: parseFloat(card) || 0,
-      phone_tap: parseFloat(phoneTap) || 0,
+      amount: parseFloat(amount) || 0,
     }
 
     setSaving(true)
@@ -164,20 +153,7 @@ export function MachineRevenueForm({ entry, machines, locationId, onSave, onClos
               </div>
 
               <div>
-                <label style={{ ...labelStyle, marginBottom: '10px' }}>Payment Breakdown</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <AmountField label="Coin" value={coin} onChange={setCoin} />
-                  <AmountField label="Bill Drop" value={billDrop} onChange={setBillDrop} />
-                  <AmountField label="Card" value={card} onChange={setCard} />
-                  <AmountField label="Phone Tap" value={phoneTap} onChange={setPhoneTap} />
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center pt-1" style={{ borderTop: '1px solid var(--copper-dark)', paddingTop: '12px' }}>
-                <span style={{ fontFamily: 'var(--font-heading)', fontSize: '11px', letterSpacing: '0.15em', color: 'var(--text-muted)' }}>TOTAL</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '20px', color: 'var(--gold-base)', fontWeight: 'bold' }}>
-                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}
-                </span>
+                <AmountField label="Amount Collected *" value={amount} onChange={setAmount} />
               </div>
             </>
           )}

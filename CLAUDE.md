@@ -145,7 +145,7 @@ The Dashboard shall include time-series charts for:
 - Expenses over time (by date)
 - Net Profit over time
 
-Charts must be filterable by time range (e.g., last 30 days, last 3 months, year to date, custom range). Revenue charts should support breakdown by payment type (coin, bill, card, phone tap) and by machine, enabling the user to identify trends such as seasonal spikes, day-of-week patterns, or shifts in payment method usage over time.
+Charts must be filterable by time range (e.g., last 30 days, last 3 months, year to date, custom range). Revenue charts should support breakdown by machine, enabling the user to identify trends such as seasonal spikes or day-of-week patterns over time.
 
 ---
 
@@ -219,12 +219,7 @@ Upcoming dates are calculated by the application based on the last logged date f
 
 ### Machine Revenue
 
-Each machine tracks revenue broken down by the following payment types:
-
-- Coin
-- Bill Drop
-- Card
-- Phone Tap (NFC/contactless)
+Each machine tracks revenue as a single total amount collected per collection period. Payment-type breakdown (coin, bill, card, phone tap) was considered but was deliberately dropped in favor of a single total — the entry form only ever collects one figure per collection.
 
 ### Revenue Entry
 
@@ -233,19 +228,18 @@ In Version 1, machine revenue is entered manually by the user. Each entry must i
 - Machine (selected from active machines)
 - Collection Date (the date the collection was made)
 - Collection Period (the date range the revenue covers, e.g., June 1–June 15)
-- Amount per payment type (Coin, Bill Drop, Card, Phone Tap)
+- Amount (total collected for the period)
 
 Both Collection Date and Collection Period are required. They are essential for time-based reporting and trend analysis.
 
 All revenue data must be queryable and chartable by date. The application should support time-series views that allow the user to identify patterns such as:
 
 - Seasonal revenue spikes (e.g., holiday periods)
-- Day-of-week or end-of-month payment type trends (e.g., higher card usage at month end)
 - Performance comparisons across machines over the same period
 
 ### CSV Import (Planned — Not Part of Version 1)
 
-CSV import of machine revenue is planned for a future version. Each machine has a built-in cloud export mechanism that produces a CSV broken down by payment type (coin, bill, card, phone tap).
+CSV import of machine revenue is planned for a future version. Each machine has a built-in cloud export mechanism that produces a CSV of collection totals.
 
 When building the data model, ensure it supports this future import by including a unique identifier per revenue entry composed of the Machine ID and the Collection Timestamp. This combination must be unique and will be used during import to detect duplicates — preventing the same collection from being recorded twice while also ensuring that identical timestamps from different machines are never confused with one another.
 
@@ -367,7 +361,7 @@ Do not build this feature now. Only ensure the data model supports it.
 
 All data in the application must be exportable as CSV. This applies universally across every module — not just machine revenue. The user must be able to export any of the following at any time:
 
-- Machine revenue (by machine, by payment type, by date range)
+- Machine revenue (by machine, by date range)
 - Non-machine revenue (by category, by date range)
 - Expenses (by category, by machine, by date range)
 - Maintenance log (by machine, by date range)

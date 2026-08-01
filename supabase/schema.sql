@@ -141,10 +141,7 @@ create table if not exists machine_revenue (
   collection_date         date not null,
   collection_period_start date not null,
   collection_period_end   date not null,
-  coin                    numeric(10, 2) not null default 0,
-  bill_drop               numeric(10, 2) not null default 0,
-  card                    numeric(10, 2) not null default 0,
-  phone_tap               numeric(10, 2) not null default 0,
+  amount                  numeric(10, 2) not null default 0,
   created_at              timestamptz not null default now(),
   updated_at              timestamptz not null default now(),
   unique (machine_id, collection_date)
