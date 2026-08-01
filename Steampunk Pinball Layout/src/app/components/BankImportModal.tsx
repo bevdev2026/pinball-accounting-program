@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import Papa from 'papaparse'
 import { toast } from 'sonner'
-import { Upload } from 'lucide-react'
+import { Upload, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { ExpenseCategory } from './expenses/types'
 import type { RevenueCategory } from './revenue/types'
@@ -28,9 +28,18 @@ type ParsedRow = {
   amount: string
   categoryId: string
   isDuplicate: boolean
+  reviewReason: string | null
 }
 
 type Summary = { expenses: number; deposits: number; pending: number; unparseable: number; duplicates: number }
+
+const REVIEW_KEYWORDS = ['TRANSFER', 'REFUND', 'REVERSAL', 'CREDIT']
+
+function reviewReasonFor(description: string): string | null {
+  const upper = description.toUpperCase()
+  const hit = REVIEW_KEYWORDS.find(kw => upper.includes(kw))
+  return hit ?? null
+}
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -145,24 +154,34 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
           supabase.from('non_machine_revenue').select('date, notes, amount').gte('date', minDate).lte('date', maxDate),
         ])
 
-        const seenExpenses = new Set<string>()
+        // existingCounts: how many times each (date, description, amount) key already
+        // exists in the DB. batchCounts: how many times we've seen that key so far while
+        // walking this file. A row is only a duplicate once the batch count exceeds what
+        // already exists — repeats that go beyond that are new, distinct transactions
+        // that just happen to look alike (e.g. several identical vending collections).
+        const existingExpenseCounts = new Map<string, number>()
         for (const e of existingExpenses.data ?? []) {
-          seenExpenses.add(keyFor(e.date, e.description ?? '', e.amount))
+          const k = keyFor(e.date, e.description ?? '', e.amount)
+          existingExpenseCounts.set(k, (existingExpenseCounts.get(k) ?? 0) + 1)
         }
-        const seenDeposits = new Set<string>()
+        const existingDepositCounts = new Map<string, number>()
         for (const d of existingDeposits.data ?? []) {
-          seenDeposits.add(keyFor(d.date, d.notes ?? '', d.amount))
+          const k = keyFor(d.date, d.notes ?? '', d.amount)
+          existingDepositCounts.set(k, (existingDepositCounts.get(k) ?? 0) + 1)
         }
 
         let duplicates = 0
         let keyCounter = 0
+        const batchExpenseCounts = new Map<string, number>()
+        const batchDepositCounts = new Map<string, number>()
 
         const built: ParsedRow[] = []
         for (const c of expenseCandidates) {
           const k = keyFor(c.date, c.description, c.amount)
-          const isDuplicate = seenExpenses.has(k)
+          const seenSoFar = (batchExpenseCounts.get(k) ?? 0) + 1
+          batchExpenseCounts.set(k, seenSoFar)
+          const isDuplicate = seenSoFar <= (existingExpenseCounts.get(k) ?? 0)
           if (isDuplicate) duplicates++
-          seenExpenses.add(k)
           built.push({
             key: String(keyCounter++),
             type: 'expense',
@@ -172,13 +191,15 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
             amount: c.amount.toFixed(2),
             categoryId: '',
             isDuplicate,
+            reviewReason: null,
           })
         }
         for (const c of depositCandidates) {
           const k = keyFor(c.date, c.description, c.amount)
-          const isDuplicate = seenDeposits.has(k)
+          const seenSoFar = (batchDepositCounts.get(k) ?? 0) + 1
+          batchDepositCounts.set(k, seenSoFar)
+          const isDuplicate = seenSoFar <= (existingDepositCounts.get(k) ?? 0)
           if (isDuplicate) duplicates++
-          seenDeposits.add(k)
           built.push({
             key: String(keyCounter++),
             type: 'deposit',
@@ -188,6 +209,7 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
             amount: c.amount.toFixed(2),
             categoryId: '',
             isDuplicate,
+            reviewReason: reviewReasonFor(c.description),
           })
         }
 
@@ -204,6 +226,10 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
 
   function updateRow(key: string, patch: Partial<ParsedRow>) {
     setRows(rs => rs.map(r => (r.key === key ? { ...r, ...patch } : r)))
+  }
+
+  function removeRow(key: string) {
+    setRows(rs => rs.filter(r => r.key !== key))
   }
 
   async function handleSave() {
@@ -232,7 +258,12 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
         source: 'bank_import' as const,
       }))
       const { error } = await supabase.from('expenses').insert(payload)
-      if (error) { toast.error('Failed to import expenses.'); setSaving(false); return }
+      if (error) {
+        console.error('Failed to import expenses:', error)
+        toast.error(`Failed to import expenses: ${error.message}`)
+        setSaving(false)
+        return
+      }
     }
 
     if (depositRows.length > 0) {
@@ -245,7 +276,12 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
         source: 'bank_import' as const,
       }))
       const { error } = await supabase.from('non_machine_revenue').insert(payload)
-      if (error) { toast.error('Failed to import deposits.'); setSaving(false); return }
+      if (error) {
+        console.error('Failed to import deposits:', error)
+        toast.error(`Failed to import deposits: ${error.message}`)
+        setSaving(false)
+        return
+      }
     }
 
     const parts: string[] = []
@@ -260,7 +296,7 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--copper-dark)' }} className="max-w-4xl">
+      <DialogContent style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--copper-dark)', maxWidth: '1200px', width: '95vw' }}>
         <DialogHeader>
           <DialogTitle style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-heading)', letterSpacing: '0.1em' }}>
             IMPORT BANK TRANSACTIONS
@@ -317,13 +353,14 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
 
           {!parsing && rows.length > 0 && (
             <div style={{ border: '1px solid var(--copper-dark)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-              <div className="grid" style={{ gridTemplateColumns: '28px 76px 130px 1fr 100px 180px', borderBottom: '1px solid var(--copper-dark)' }}>
+              <div className="grid" style={{ gridTemplateColumns: '28px 64px 110px 1fr 90px 160px 32px', borderBottom: '1px solid var(--copper-dark)' }}>
                 <div style={colHeader} />
                 <div style={colHeader}>TYPE</div>
                 <div style={colHeader}>DATE</div>
                 <div style={colHeader}>DESCRIPTION</div>
                 <div style={colHeader}>AMOUNT</div>
                 <div style={colHeader}>CATEGORY *</div>
+                <div style={colHeader} />
               </div>
               <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
                 {rows.map((row, i) => {
@@ -333,7 +370,7 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
                       key={row.key}
                       className="grid items-center"
                       style={{
-                        gridTemplateColumns: '28px 76px 130px 1fr 100px 180px',
+                        gridTemplateColumns: '28px 64px 110px 1fr 90px 160px 32px',
                         borderBottom: i === rows.length - 1 ? 'none' : '1px solid rgba(107,46,18,0.25)',
                         backgroundColor: row.isDuplicate ? 'rgba(107,46,18,0.12)' : 'transparent',
                       }}
@@ -366,6 +403,11 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
                             POSSIBLE DUPLICATE
                           </div>
                         )}
+                        {row.reviewReason && (
+                          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '9px', letterSpacing: '0.08em', color: 'var(--gold-base)', marginTop: '3px' }}>
+                            REVIEW: {row.reviewReason}
+                          </div>
+                        )}
                       </div>
                       <div style={{ padding: '4px 8px' }}>
                         <input
@@ -382,6 +424,15 @@ export function BankImportModal({ expenseCategories, revenueCategories, location
                           <option value="">— Select —</option>
                           {categoryOptions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
+                      </div>
+                      <div style={{ padding: '4px 8px', display: 'flex', justifyContent: 'center' }}>
+                        <button
+                          onClick={() => removeRow(row.key)}
+                          title="Remove this row from the import"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--destructive)', opacity: 0.7, padding: '4px' }}
+                        >
+                          <Trash2 size={13} />
+                        </button>
                       </div>
                     </div>
                   )
