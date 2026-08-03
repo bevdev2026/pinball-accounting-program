@@ -6,6 +6,7 @@ import { calcLoanStatus } from '../liabilities/calcLoanStatus'
 import type { Loan } from '../liabilities/types'
 import { sumNetByLocation } from '../rent/calcPayout'
 import type { Agreement } from '../rent/types'
+import { ensureAllDepreciationPeriods, getCapexCategoryId } from '../machines/calcDepreciation'
 import { Button } from '../ui/button'
 
 // ── CSV helpers ────────────────────────────────────────────────────────────────
@@ -257,8 +258,11 @@ export function ReportsView() {
   async function exportPnL() {
     setBusy('pnl')
     try {
+      await ensureAllDepreciationPeriods()
+      const capexCategoryId = await getCapexCategoryId()
+
       // Fetch all revenue and expenses for the period
-      const [mrQ, nmrQ, expQ, agreeQ] = await Promise.all([
+      const [mrQ, nmrQ, expQ, depQ, agreeQ] = await Promise.all([
         applyDateFilter(
           supabase.from('machine_revenue').select('amount,location_id') as any,
           'collection_date'
@@ -268,8 +272,12 @@ export function ReportsView() {
           'date'
         ).then((r: any) => r),
         applyDateFilter(
-          supabase.from('expenses').select('amount') as any,
+          supabase.from('expenses').select('amount,category_id') as any,
           'date'
+        ).then((r: any) => r),
+        applyDateFilter(
+          supabase.from('machine_depreciation_periods').select('amount') as any,
+          'period_month'
         ).then((r: any) => r),
         supabase
           .from('rent_commission_agreements')
@@ -283,7 +291,14 @@ export function ReportsView() {
       )
       const otherRevenue = (nmrQ.data ?? []).reduce((sum: number, r: any) => sum + (r.amount ?? 0), 0)
       const grossRevenue = machineRevenue + otherRevenue
-      const totalExpenses = (expQ.data ?? []).reduce((sum: number, r: any) => sum + (r.amount ?? 0), 0)
+
+      // Capital expenditures (machine purchases) are excluded from operating
+      // expenses — their cost is recognized instead via depreciation below.
+      const operatingExpenses = (expQ.data ?? [])
+        .filter((r: any) => r.category_id !== capexCategoryId)
+        .reduce((sum: number, r: any) => sum + (r.amount ?? 0), 0)
+      const depreciation = (depQ.data ?? []).reduce((sum: number, r: any) => sum + (r.amount ?? 0), 0)
+      const totalExpenses = operatingExpenses + depreciation
 
       // Rent & commission is calculated per location, using each location's own
       // active agreement, then summed — a single global rate no longer applies
@@ -311,6 +326,8 @@ export function ReportsView() {
         ['Rent & Commission', `-${fmt(rentDeduction)}`, rentNote],
         ['Net Revenue', fmt(netRevenue), ''],
         ['', '', ''],
+        ['Operating Expenses', `-${fmt(operatingExpenses)}`, 'Excludes capital expenditures'],
+        ['Depreciation', `-${fmt(depreciation)}`, 'Straight-line, machine purchases'],
         ['Total Expenses', `-${fmt(totalExpenses)}`, ''],
         ['', '', ''],
         ['Net Profit', fmt(netProfit), netProfit >= 0 ? '' : 'Loss'],

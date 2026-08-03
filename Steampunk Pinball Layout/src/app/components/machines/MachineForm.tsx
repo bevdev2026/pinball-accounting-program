@@ -24,6 +24,8 @@ export function MachineForm({ machine, onSave, onClose }: Props) {
   const [locationId, setLocationId] = useState(machine?.location_id ?? defaultLocationId)
   const [purchasePrice, setPurchasePrice] = useState(machine?.purchase_price?.toString() ?? '')
   const [dateAcquired, setDateAcquired] = useState(machine?.date_acquired ?? '')
+  const [usefulLifeYears, setUsefulLifeYears] = useState(machine?.useful_life_years?.toString() ?? '7')
+  const [salvageValue, setSalvageValue] = useState(machine?.salvage_value?.toString() ?? '0')
   const [status, setStatus] = useState<MachineStatus>(machine?.status ?? 'Active')
   const [saving, setSaving] = useState(false)
 
@@ -32,6 +34,8 @@ export function MachineForm({ machine, onSave, onClose }: Props) {
     setLocationId(machine?.location_id ?? defaultLocationId)
     setPurchasePrice(machine?.purchase_price?.toString() ?? '')
     setDateAcquired(machine?.date_acquired ?? '')
+    setUsefulLifeYears(machine?.useful_life_years?.toString() ?? '7')
+    setSalvageValue(machine?.salvage_value?.toString() ?? '0')
     setStatus(machine?.status ?? 'Active')
   }, [machine, defaultLocationId])
 
@@ -40,20 +44,37 @@ export function MachineForm({ machine, onSave, onClose }: Props) {
       toast.error('Machine name is required.')
       return
     }
+    if (!usefulLifeYears || isNaN(parseInt(usefulLifeYears)) || parseInt(usefulLifeYears) <= 0) {
+      toast.error('Enter a valid useful life (years).')
+      return
+    }
+    if (salvageValue && (isNaN(parseFloat(salvageValue)) || parseFloat(salvageValue) < 0)) {
+      toast.error('Enter a valid salvage value.')
+      return
+    }
     setSaving(true)
     const price = purchasePrice ? parseFloat(purchasePrice) : null
+    const payload = {
+      location_id: locationId,
+      name: name.trim(),
+      purchase_price: price,
+      date_acquired: dateAcquired || null,
+      useful_life_years: parseInt(usefulLifeYears),
+      salvage_value: parseFloat(salvageValue) || 0,
+      status,
+    }
 
     if (isEdit) {
       const { error } = await supabase
         .from('machines')
-        .update({ location_id: locationId, name: name.trim(), purchase_price: price, date_acquired: dateAcquired || null, status })
+        .update(payload)
         .eq('id', machine!.id)
       if (error) { toast.error('Failed to update machine.'); setSaving(false); return }
       toast.success('Machine updated.')
     } else {
       const { error } = await supabase
         .from('machines')
-        .insert({ location_id: locationId, name: name.trim(), purchase_price: price, date_acquired: dateAcquired || null, status })
+        .insert(payload)
       if (error) { toast.error('Failed to add machine.'); setSaving(false); return }
       toast.success('Machine added.')
     }
@@ -154,6 +175,32 @@ export function MachineForm({ machine, onSave, onClose }: Props) {
                 type="date"
                 value={dateAcquired}
                 onChange={e => setDateAcquired(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label style={labelStyle}>Useful Life (Years) *</label>
+              <input
+                style={inputStyle}
+                type="number"
+                min="1"
+                step="1"
+                value={usefulLifeYears}
+                onChange={e => setUsefulLifeYears(e.target.value)}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Salvage Value</label>
+              <input
+                style={inputStyle}
+                type="number"
+                min="0"
+                step="0.01"
+                value={salvageValue}
+                onChange={e => setSalvageValue(e.target.value)}
+                placeholder="0.00"
               />
             </div>
           </div>

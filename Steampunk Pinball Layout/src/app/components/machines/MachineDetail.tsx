@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { ChevronLeft, Pencil, Archive, Plus, Trash2, Upload } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import type { Machine, MaintenanceItem, MaintenanceLog } from './types'
+import type { Machine, MaintenanceItem, MaintenanceLog, MachineDepreciationPeriod } from './types'
 import { MachineForm } from './MachineForm'
 import { MaintenanceItemForm } from './MaintenanceItemForm'
 import { MaintenanceLogForm } from './MaintenanceLogForm'
+import { ensureDepreciationPeriods, calcAccumulatedDepreciation, calcBookValue } from './calcDepreciation'
 import { Button } from '../ui/button'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -104,6 +105,7 @@ export function MachineDetail({ machineId, locationId, onBack, onArchived }: Pro
   const [machine, setMachine] = useState<Machine | null>(null)
   const [items, setItems] = useState<MaintenanceItem[]>([])
   const [logs, setLogs] = useState<MaintenanceLog[]>([])
+  const [depreciationPeriods, setDepreciationPeriods] = useState<MachineDepreciationPeriod[]>([])
   const [loading, setLoading] = useState(true)
 
   const [showEditForm, setShowEditForm] = useState(false)
@@ -123,6 +125,16 @@ export function MachineDetail({ machineId, locationId, onBack, onArchived }: Pro
     if (m) setMachine(m)
     if (i) setItems(i)
     if (l) setLogs(l)
+
+    if (m) {
+      await ensureDepreciationPeriods([m])
+      const { data: dep } = await supabase
+        .from('machine_depreciation_periods')
+        .select('*')
+        .eq('machine_id', machineId)
+      if (dep) setDepreciationPeriods(dep)
+    }
+
     setLoading(false)
   }, [machineId])
 
@@ -149,6 +161,9 @@ export function MachineDetail({ machineId, locationId, onBack, onArchived }: Pro
   function getLastLog(itemId: string): MaintenanceLog | undefined {
     return logs.filter(l => l.maintenance_item_id === itemId)[0]
   }
+
+  const accumulatedDepreciation = calcAccumulatedDepreciation(depreciationPeriods)
+  const bookValue = machine ? calcBookValue(machine, accumulatedDepreciation) : 0
 
   if (loading) {
     return (
@@ -211,8 +226,8 @@ export function MachineDetail({ machineId, locationId, onBack, onArchived }: Pro
       </div>
 
       {/* Machine info card */}
-      <div className="p-5 flex items-center justify-between" style={cardStyle}>
-        <div className="flex gap-12">
+      <div className="p-5 flex items-start justify-between" style={cardStyle}>
+        <div className="flex gap-10 flex-wrap">
           <div>
             <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.15em', color: 'var(--text-muted)', textTransform: 'uppercase' as const }}>
               Purchase Price
@@ -227,6 +242,38 @@ export function MachineDetail({ machineId, locationId, onBack, onArchived }: Pro
             </div>
             <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-heading)', fontSize: '20px', marginTop: '4px' }}>
               {formatDate(machine.date_acquired)}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.15em', color: 'var(--text-muted)', textTransform: 'uppercase' as const }}>
+              Useful Life
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-heading)', fontSize: '20px', marginTop: '4px' }}>
+              {machine.useful_life_years} yrs
+            </div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.15em', color: 'var(--text-muted)', textTransform: 'uppercase' as const }}>
+              Salvage Value
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-heading)', fontSize: '20px', marginTop: '4px' }}>
+              {formatCurrency(machine.salvage_value)}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.15em', color: 'var(--text-muted)', textTransform: 'uppercase' as const }}>
+              Accumulated Depreciation
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '20px', marginTop: '4px' }}>
+              {formatCurrency(accumulatedDepreciation)}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.15em', color: 'var(--text-muted)', textTransform: 'uppercase' as const }}>
+              Book Value
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold-base)', fontSize: '20px', marginTop: '4px', fontWeight: 'bold' }}>
+              {formatCurrency(bookValue)}
             </div>
           </div>
         </div>

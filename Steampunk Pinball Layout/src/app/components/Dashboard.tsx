@@ -17,6 +17,7 @@ import type { ExpenseCategory } from './expenses/types';
 import type { RevenueCategory } from './revenue/types';
 import type { Agreement } from './rent/types';
 import { sumNetByLocation, calcRentDeduction, describeAgreementShort } from './rent/calcPayout';
+import { ensureAllDepreciationPeriods, getCapexCategoryId } from './machines/calcDepreciation';
 
 type ChartPoint = { label: string; value: number };
 type LocationBreakdownRow = { id: string; name: string; agreementLabel: string; gross: number; commission: number; net: number };
@@ -175,10 +176,14 @@ export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onTogg
       const monthStart = `${year}-${pad(month + 1)}-01`;
       const today = now.toISOString().split('T')[0];
 
-      const [mrYtd, nmrYtd, expYtdRes, agreeRes, machinesRes, itemsRes, logsRes, loansRes] = await Promise.all([
+      await ensureAllDepreciationPeriods();
+      const capexCategoryId = await getCapexCategoryId();
+
+      const [mrYtd, nmrYtd, expYtdRes, depYtdRes, agreeRes, machinesRes, itemsRes, logsRes, loansRes] = await Promise.all([
         supabase.from('machine_revenue').select('collection_date,amount,location_id').gte('collection_date', ytdStart).lte('collection_date', today),
         supabase.from('non_machine_revenue').select('date,amount,location_id').gte('date', ytdStart).lte('date', today),
-        supabase.from('expenses').select('date,amount').gte('date', ytdStart).lte('date', today),
+        supabase.from('expenses').select('date,amount,category_id').gte('date', ytdStart).lte('date', today),
+        supabase.from('machine_depreciation_periods').select('period_month,amount').gte('period_month', ytdStart).lte('period_month', today),
         supabase.from('rent_commission_agreements').select('*').is('end_date', null),
         supabase.from('machines').select('id,name').eq('is_archived', false).in('status', ['Active', 'Out of Service']),
         supabase.from('maintenance_items').select('id,machine_id,name,interval_days'),
@@ -191,10 +196,13 @@ export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onTogg
       );
       agreementsRef.current = agreementsByLocation;
 
-      // KPI
+      // KPI — operating expenses exclude capital expenditures (machine purchases
+      // are recognized via depreciation instead, not as a lump-sum expense).
       const mrRows = mrYtd.data ?? [];
       const nmrRows = nmrYtd.data ?? [];
-      const expRows = expYtdRes.data ?? [];
+      const opexRows = (expYtdRes.data ?? []).filter((r: any) => r.category_id !== capexCategoryId);
+      const depRows = (depYtdRes.data ?? []).map((r: any) => ({ date: r.period_month, amount: r.amount }));
+      const expRows = [...opexRows, ...depRows];
       const monthMrRows = mrRows.filter((r: any) => r.collection_date >= monthStart);
       const monthNmrRows = nmrRows.filter((r: any) => r.date >= monthStart);
 
@@ -267,13 +275,20 @@ export function Dashboard({ isLight, onToggleTheme }: { isLight: boolean; onTogg
     const now = new Date();
     const toDate = chartRange === 'custom' && customTo ? customTo : now.toISOString().split('T')[0];
 
-    const [mrRes, nmrRes, expRes] = await Promise.all([
+    const capexCategoryId = await getCapexCategoryId();
+
+    const [mrRes, nmrRes, expRes, depRes] = await Promise.all([
       supabase.from('machine_revenue').select('collection_date,amount,location_id').gte('collection_date', fromDate).lte('collection_date', toDate),
       supabase.from('non_machine_revenue').select('date,amount,location_id').gte('date', fromDate).lte('date', toDate),
-      supabase.from('expenses').select('date,amount').gte('date', fromDate).lte('date', toDate),
+      supabase.from('expenses').select('date,amount,category_id').gte('date', fromDate).lte('date', toDate),
+      supabase.from('machine_depreciation_periods').select('period_month,amount').gte('period_month', fromDate).lte('period_month', toDate),
     ]);
 
-    const { gross, exp, profit } = computeChartData(series, mrRes.data ?? [], nmrRes.data ?? [], expRes.data ?? [], agreementsRef.current);
+    const opexRows = (expRes.data ?? []).filter((r: any) => r.category_id !== capexCategoryId);
+    const depRows = (depRes.data ?? []).map((r: any) => ({ date: r.period_month, amount: r.amount }));
+    const combinedExpRows = [...opexRows, ...depRows];
+
+    const { gross, exp, profit } = computeChartData(series, mrRes.data ?? [], nmrRes.data ?? [], combinedExpRows, agreementsRef.current);
     setGrossChart(gross);
     setExpChart(exp);
     setProfitChart(profit);
