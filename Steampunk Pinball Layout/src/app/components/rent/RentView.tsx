@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 import { Plus, Pencil } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import type { Agreement } from './types'
+import type { Agreement, CommissionPayment } from './types'
 import { RentAgreementForm } from './RentAgreementForm'
-import { useLocationMonthRevenue } from './calcPayout'
+import { useLocationMonthRevenue, ensureCommissionPeriods, setCommissionPaid } from './calcPayout'
 import { Button } from '../ui/button'
 import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
@@ -62,6 +63,9 @@ export function RentView() {
   const [agreements, setAgreements] = useState<Agreement[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [commissionHistory, setCommissionHistory] = useState<CommissionPayment[]>([])
+  const [historyLoading, setHistoryLoading] = useState(true)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const payout = useLocationMonthRevenue(showingAllLocations ? '' : activeLocationId)
   const monthLabel = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()
 
@@ -77,10 +81,36 @@ export function RentView() {
     setLoading(false)
   }, [activeLocationId, showingAllLocations])
 
+  const fetchCommissionHistory = useCallback(async () => {
+    if (!activeLocationId || showingAllLocations) { setCommissionHistory([]); setHistoryLoading(false); return }
+    setHistoryLoading(true)
+    await ensureCommissionPeriods()
+    const { data } = await supabase
+      .from('commission_payments')
+      .select('*')
+      .eq('location_id', activeLocationId)
+      .order('period_month', { ascending: false })
+    if (data) setCommissionHistory(data as CommissionPayment[])
+    setHistoryLoading(false)
+  }, [activeLocationId, showingAllLocations])
+
   useEffect(() => { fetchAgreements() }, [fetchAgreements])
+  useEffect(() => { fetchCommissionHistory() }, [fetchCommissionHistory])
+
+  async function handleTogglePaid(payment: CommissionPayment) {
+    setTogglingId(payment.id)
+    const { error } = await setCommissionPaid(payment.id, !payment.paid)
+    if (error) { toast.error('Failed to update paid status.'); setTogglingId(null); return }
+    await fetchCommissionHistory()
+    setTogglingId(null)
+  }
 
   const activeAgreement = agreements.find(a => !a.end_date) ?? null
   const historyAgreements = agreements.filter(a => a.end_date !== null)
+
+  function formatPeriod(periodMonth: string) {
+    return new Date(periodMonth + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
 
   return (
     <div className="p-8 space-y-6">
@@ -232,6 +262,57 @@ export function RentView() {
           </div>
           <div style={{ fontFamily: 'var(--font-heading)', fontSize: '11px', letterSpacing: '0.1em', color: 'var(--text-muted)', marginTop: '10px' }}>
             {historyAgreements.length} PAST {historyAgreements.length === 1 ? 'AGREEMENT' : 'AGREEMENTS'}
+          </div>
+        </div>
+      )}
+
+      {/* Commission history — frozen monthly records once a month completes */}
+      {!historyLoading && commissionHistory.length > 0 && (
+        <div>
+          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '11px', letterSpacing: '0.15em', color: 'var(--text-muted)', marginBottom: '10px' }}>
+            COMMISSION HISTORY
+          </div>
+          <div style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+            <div className="grid" style={{ gridTemplateColumns: '160px 130px 130px 130px 140px', borderBottom: '1px solid var(--copper-dark)' }}>
+              <div style={colHeader}>PERIOD</div>
+              <div style={colHeader}>GROSS</div>
+              <div style={colHeader}>COMMISSION</div>
+              <div style={colHeader}>NET</div>
+              <div style={colHeader}>PAID</div>
+            </div>
+            {commissionHistory.map((c, i) => (
+              <div
+                key={c.id}
+                className="grid items-center"
+                style={{ gridTemplateColumns: '160px 130px 130px 130px 140px', borderBottom: i === commissionHistory.length - 1 ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
+              >
+                <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-primary)', fontSize: '13px' }}>
+                  {formatPeriod(c.period_month)}
+                </div>
+                <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                  {formatMoney(c.gross_revenue)}
+                </div>
+                <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--destructive)', fontSize: '13px' }}>
+                  -{formatMoney(c.commission_amount)}
+                </div>
+                <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--gold-base)', fontSize: '13px', fontWeight: 'bold' }}>
+                  {formatMoney(c.net_revenue)}
+                </div>
+                <div style={{ padding: '12px' }}>
+                  <label className="flex items-center gap-2" style={{ cursor: 'pointer', opacity: togglingId === c.id ? 0.5 : 1 }}>
+                    <input
+                      type="checkbox"
+                      checked={c.paid}
+                      disabled={togglingId === c.id}
+                      onChange={() => handleTogglePaid(c)}
+                    />
+                    <span style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.08em', color: c.paid ? 'var(--patina-light)' : 'var(--text-muted)' }}>
+                      {c.paid && c.paid_date ? `PAID ${formatDate(c.paid_date)}` : 'UNPAID'}
+                    </span>
+                  </label>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

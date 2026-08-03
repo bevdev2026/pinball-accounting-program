@@ -89,3 +89,84 @@ export function useLocationMonthRevenue(locationId: string): LocationMonthRevenu
   const commission = calcRentDeduction(agreement, gross)
   return { gross, commission, net: gross - commission, agreement, loading }
 }
+
+const pad = (n: number) => String(n).padStart(2, '0')
+
+function monthStartKey(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-01` }
+function monthEndKey(d: Date) {
+  const end = new Date(d.getFullYear(), d.getMonth() + 1, 0)
+  return `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`
+}
+
+function agreementActiveInMonth(agreements: Agreement[], monthStartStr: string, monthEndStr: string): Agreement | null {
+  return agreements.find(a => a.effective_date <= monthEndStr && (!a.end_date || a.end_date >= monthStartStr)) ?? null
+}
+
+// Persists a frozen commission record for every completed month (never the
+// current, still-in-progress month) that doesn't already have one. Existing
+// rows are never touched — once a month is recorded, it stays fixed even if
+// that month's revenue is edited afterward. Months with no active agreement
+// are skipped (nothing was owed).
+export async function ensureCommissionPeriods(): Promise<void> {
+  const now = new Date()
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+
+  const [locsRes, agreementsRes, existingRes, mrRes, nmrRes] = await Promise.all([
+    supabase.from('locations').select('id'),
+    supabase.from('rent_commission_agreements').select('*'),
+    supabase.from('commission_payments').select('location_id,period_month'),
+    supabase.from('machine_revenue').select('collection_date,amount,location_id'),
+    supabase.from('non_machine_revenue').select('date,amount,location_id'),
+  ])
+
+  const existingKeys = new Set((existingRes.data ?? []).map((r: any) => `${r.location_id}|${r.period_month}`))
+  const agreementsByLocation = new Map<string, Agreement[]>()
+  for (const a of (agreementsRes.data ?? []) as Agreement[]) {
+    const list = agreementsByLocation.get(a.location_id) ?? []
+    list.push(a)
+    agreementsByLocation.set(a.location_id, list)
+  }
+
+  const mrRows = mrRes.data ?? []
+  const nmrRows = nmrRes.data ?? []
+
+  const rows: { location_id: string; period_month: string; gross_revenue: number; commission_amount: number; net_revenue: number }[] = []
+
+  for (const loc of (locsRes.data ?? []) as { id: string }[]) {
+    const agreements = agreementsByLocation.get(loc.id) ?? []
+    if (agreements.length === 0) continue
+
+    const earliestEffective = agreements.reduce((min, a) => (a.effective_date < min ? a.effective_date : min), agreements[0].effective_date)
+    const start = new Date(earliestEffective + 'T00:00:00')
+    let cursor = new Date(start.getFullYear(), start.getMonth(), 1)
+
+    while (cursor < currentMonthStart) {
+      const mk = monthStartKey(cursor)
+      const key = `${loc.id}|${mk}`
+      if (!existingKeys.has(key)) {
+        const mek = monthEndKey(cursor)
+        const agreement = agreementActiveInMonth(agreements, mk, mek)
+        if (agreement) {
+          const monthPrefix = mk.slice(0, 7)
+          const gross =
+            mrRows.filter((r: any) => r.location_id === loc.id && (r.collection_date ?? '').startsWith(monthPrefix)).reduce((s: number, r: any) => s + (r.amount ?? 0), 0) +
+            nmrRows.filter((r: any) => r.location_id === loc.id && (r.date ?? '').startsWith(monthPrefix)).reduce((s: number, r: any) => s + (r.amount ?? 0), 0)
+          const commission = calcRentDeduction(agreement, gross)
+          rows.push({ location_id: loc.id, period_month: mk, gross_revenue: gross, commission_amount: commission, net_revenue: gross - commission })
+        }
+      }
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1)
+    }
+  }
+
+  if (rows.length === 0) return
+  await supabase.from('commission_payments').upsert(rows, { onConflict: 'location_id,period_month', ignoreDuplicates: true })
+}
+
+export async function setCommissionPaid(id: string, paid: boolean): Promise<{ error: unknown }> {
+  const { error } = await supabase
+    .from('commission_payments')
+    .update({ paid, paid_date: paid ? new Date().toISOString().split('T')[0] : null })
+    .eq('id', id)
+  return { error }
+}

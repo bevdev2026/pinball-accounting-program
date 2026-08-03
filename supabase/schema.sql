@@ -28,18 +28,36 @@ insert into locations (name) values ('Main Venue')
 -- MACHINES
 -- ============================================================
 create type machine_status as enum ('Active', 'Out of Service', 'Retired');
+create type depreciation_method as enum ('straight_line');
 
 create table if not exists machines (
-  id             uuid primary key default gen_random_uuid(),
-  location_id    uuid not null references locations(id),
-  name           text not null,
-  purchase_price numeric(10, 2),
-  date_acquired  date,
-  status         machine_status not null default 'Active',
-  is_archived    boolean not null default false,
-  archived_at    timestamptz,
-  created_at     timestamptz not null default now(),
-  updated_at     timestamptz not null default now()
+  id                  uuid primary key default gen_random_uuid(),
+  location_id         uuid not null references locations(id),
+  name                text not null,
+  purchase_price      numeric(10, 2),
+  date_acquired       date,
+  useful_life_years   integer not null default 7,
+  salvage_value       numeric(10, 2) not null default 0,
+  depreciation_method depreciation_method not null default 'straight_line',
+  status              machine_status not null default 'Active',
+  is_archived         boolean not null default false,
+  archived_at         timestamptz,
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now()
+);
+
+-- ============================================================
+-- MACHINE DEPRECIATION PERIODS
+-- One row per machine per month of straight-line depreciation.
+-- Stops once useful_life_years * 12 months have been recorded.
+-- ============================================================
+create table if not exists machine_depreciation_periods (
+  id           uuid primary key default gen_random_uuid(),
+  machine_id   uuid not null references machines(id) on delete cascade,
+  period_month date not null,
+  amount       numeric(10, 2) not null,
+  created_at   timestamptz not null default now(),
+  unique (machine_id, period_month)
 );
 
 -- ============================================================
@@ -185,6 +203,24 @@ create table if not exists rent_commission_agreements (
 );
 
 -- ============================================================
+-- COMMISSION PAYMENTS
+-- One frozen record per location per completed month — the current,
+-- still-in-progress month is always computed live and never stored here.
+-- ============================================================
+create table if not exists commission_payments (
+  id                uuid primary key default gen_random_uuid(),
+  location_id       uuid not null references locations(id),
+  period_month      date not null,
+  gross_revenue     numeric(10, 2) not null,
+  commission_amount numeric(10, 2) not null,
+  net_revenue       numeric(10, 2) not null,
+  paid              boolean not null default false,
+  paid_date         date,
+  created_at        timestamptz not null default now(),
+  unique (location_id, period_month)
+);
+
+-- ============================================================
 -- LOANS (Liabilities)
 -- ============================================================
 create type compounding_interval as enum ('daily', 'weekly', 'monthly');
@@ -255,6 +291,7 @@ create trigger set_updated_at before update on files
 -- ============================================================
 alter table locations               enable row level security;
 alter table machines                enable row level security;
+alter table machine_depreciation_periods enable row level security;
 alter table maintenance_items       enable row level security;
 alter table maintenance_logs        enable row level security;
 alter table expense_categories      enable row level security;
@@ -263,12 +300,14 @@ alter table revenue_categories      enable row level security;
 alter table machine_revenue         enable row level security;
 alter table non_machine_revenue     enable row level security;
 alter table rent_commission_agreements enable row level security;
+alter table commission_payments      enable row level security;
 alter table loans                   enable row level security;
 alter table files                   enable row level security;
 
 -- Allow all operations for the anon role (single-user local app)
 create policy "allow_all" on locations               for all to anon using (true) with check (true);
 create policy "allow_all" on machines                for all to anon using (true) with check (true);
+create policy "allow_all" on machine_depreciation_periods for all to anon using (true) with check (true);
 create policy "allow_all" on maintenance_items       for all to anon using (true) with check (true);
 create policy "allow_all" on maintenance_logs        for all to anon using (true) with check (true);
 create policy "allow_all" on expense_categories      for all to anon using (true) with check (true);
@@ -277,5 +316,6 @@ create policy "allow_all" on revenue_categories      for all to anon using (true
 create policy "allow_all" on machine_revenue         for all to anon using (true) with check (true);
 create policy "allow_all" on non_machine_revenue     for all to anon using (true) with check (true);
 create policy "allow_all" on rent_commission_agreements for all to anon using (true) with check (true);
+create policy "allow_all" on commission_payments      for all to anon using (true) with check (true);
 create policy "allow_all" on loans                   for all to anon using (true) with check (true);
 create policy "allow_all" on files                   for all to anon using (true) with check (true);

@@ -12,3 +12,15 @@ export interface Agreement {
   notes: string | null
   created_at: string
 }
+
+export interface CommissionPayment {
+  id: string
+  location_id: string
+  period_month: string
+  gross_revenue: number
+  commission_amount: number
+  net_revenue: number
+  paid: boolean
+  paid_date: string | null
+  created_at: string
+}

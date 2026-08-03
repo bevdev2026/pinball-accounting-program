@@ -62,7 +62,10 @@
 ### Rent & Commission
 - [x] Agreement configuration form (flat fee / percentage / combination)
 - [x] Agreement history view
-- [ ] Apply active agreement to gross revenue for net revenue calculation (Dashboard)
+- [x] Apply active agreement to gross revenue for net revenue calculation (Dashboard) — fixed to be per-location (multiple simultaneous active agreements), added computed current-month payout on the Commission page, a location breakdown table on the Dashboard, and a Net Revenue summary on the Revenue page
+- [ ] Persist monthly commission records per location (`commission_payments` table) — frozen once a completed month's record is created, current month stays live
+- [ ] Mark as Paid action per month per location (paid boolean + paid date)
+- [ ] Commission History table on the Commission page showing past months' gross/commission/net/paid status
 
 ### Liabilities
 - [x] Loan entry form (with live payment preview)
@@ -91,6 +94,13 @@
 - [x] `pnpm electron:build` — builds the app and packages a Windows NSIS installer via electron-builder into `release/`
 - [x] Confirmed working end-to-end: installed the built `Setup.exe` and launched the standalone app (no dev server), loaded correctly and connected to Supabase
 - [x] Since the app already uses a cloud-hosted Supabase project, installing this on multiple laptops means they all share the same live data automatically — no additional sync work needed
+
+### Capital Expenditures & Straight-Line Depreciation
+- [x] Machine entry fields: verify/add `purchase_cost`, `purchase_date`, `useful_life_years` (default 7), `salvage_value` — reused existing `purchase_price`/`date_acquired`, added `useful_life_years`/`salvage_value`/`depreciation_method` columns
+- [x] Depreciation calculation engine (straight-line, per machine per month, stops once accumulated depreciation reaches purchase_cost − salvage_value) — `machines/calcDepreciation.ts`, stored per machine per month in `machine_depreciation_periods`
+- [x] Asset register: machines shown with book value (purchase_cost − accumulated depreciation), separate from the expense list — added to Machine Detail page
+- [x] Rewire P&L and Dashboard: remove machine purchases from operating expenses, add monthly depreciation as its own expense line — expenses under "Payments & Capital Expenditures" excluded from operating expense totals; depreciation added as its own component of Total Expenses
+- [ ] Verify July's net income reflects operations instead of a lump-sum purchase distortion — pending manual verification in the running app + the Supabase schema migration being applied
 
 ## Bugs
 

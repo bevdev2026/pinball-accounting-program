@@ -1,4 +1,5 @@
 export type MachineStatus = 'Active' | 'Out of Service' | 'Retired'
+export type DepreciationMethod = 'straight_line'
 export type CompoundingInterval = 'daily' | 'weekly' | 'monthly'
 export type PaymentFrequency = 'weekly' | 'biweekly' | 'monthly'
 export type RentCommissionType = 'flat_fee' | 'percentage' | 'combination'
@@ -44,6 +45,9 @@ export interface Database {
           name: string
           purchase_price: number | null
           date_acquired: string | null
+          useful_life_years: number
+          salvage_value: number
+          depreciation_method: DepreciationMethod
           status: MachineStatus
           is_archived: boolean
           archived_at: string | null
@@ -56,6 +60,9 @@ export interface Database {
           name: string
           purchase_price?: number | null
           date_acquired?: string | null
+          useful_life_years?: number
+          salvage_value?: number
+          depreciation_method?: DepreciationMethod
           status?: MachineStatus
           is_archived?: boolean
           archived_at?: string | null
@@ -68,10 +75,35 @@ export interface Database {
           name?: string
           purchase_price?: number | null
           date_acquired?: string | null
+          useful_life_years?: number
+          salvage_value?: number
+          depreciation_method?: DepreciationMethod
           status?: MachineStatus
           is_archived?: boolean
           archived_at?: string | null
           updated_at?: string
+        }
+      }
+      machine_depreciation_periods: {
+        Row: {
+          id: string
+          machine_id: string
+          period_month: string
+          amount: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          machine_id: string
+          period_month: string
+          amount: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          machine_id?: string
+          period_month?: string
+          amount?: number
         }
       }
       maintenance_items: {
@@ -317,6 +349,40 @@ export interface Database {
           end_date?: string | null
           notes?: string | null
           updated_at?: string
+        }
+      }
+      commission_payments: {
+        Row: {
+          id: string
+          location_id: string
+          period_month: string
+          gross_revenue: number
+          commission_amount: number
+          net_revenue: number
+          paid: boolean
+          paid_date: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          location_id: string
+          period_month: string
+          gross_revenue: number
+          commission_amount: number
+          net_revenue: number
+          paid?: boolean
+          paid_date?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          location_id?: string
+          period_month?: string
+          gross_revenue?: number
+          commission_amount?: number
+          net_revenue?: number
+          paid?: boolean
+          paid_date?: string | null
         }
       }
       loans: {
