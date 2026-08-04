@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Plus, Pencil } from 'lucide-react'
+import { Plus, Pencil, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { Agreement, CommissionPayment } from './types'
 import { RentAgreementForm } from './RentAgreementForm'
-import { useLocationMonthRevenue, ensureCommissionPeriods, setCommissionPaid } from './calcPayout'
+import { CommissionLetterModal } from './CommissionLetterModal'
+import { useLocationMonthRevenue, ensureCommissionPeriods, setCommissionPaid, describeAgreement } from './calcPayout'
 import { Button } from '../ui/button'
 import { useActiveLocation, ALL_LOCATIONS_ID } from '../../context/LocationContext'
 
@@ -14,27 +15,6 @@ function formatDate(d: string) {
 
 function formatMoney(v: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(v)
-}
-
-function formatRate(v: number) {
-  return (v * 100).toFixed(2).replace(/\.?0+$/, '') + '%'
-}
-
-function describeAgreement(a: Agreement) {
-  if (a.type === 'flat_fee') {
-    return `${formatMoney(a.flat_fee_amount!)} flat fee per collection period`
-  }
-  if (a.type === 'percentage') {
-    return `${formatRate(a.percentage_rate!)} of gross revenue`
-  }
-  // combination
-  const parts = [`${formatMoney(a.flat_fee_amount!)} flat fee`]
-  if (a.revenue_threshold != null) {
-    parts.push(`+ ${formatRate(a.percentage_rate!)} of gross revenue above ${formatMoney(a.revenue_threshold)}`)
-  } else {
-    parts.push(`+ ${formatRate(a.percentage_rate!)} of gross revenue`)
-  }
-  return parts.join(' ')
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -58,14 +38,16 @@ const colHeader: React.CSSProperties = {
 }
 
 export function RentView() {
-  const { activeLocationId } = useActiveLocation()
+  const { activeLocationId, locations } = useActiveLocation()
   const showingAllLocations = activeLocationId === ALL_LOCATIONS_ID
+  const activeLocation = locations.find(l => l.id === activeLocationId) ?? null
   const [agreements, setAgreements] = useState<Agreement[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [commissionHistory, setCommissionHistory] = useState<CommissionPayment[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [letterPayment, setLetterPayment] = useState<CommissionPayment | null>(null)
   const payout = useLocationMonthRevenue(showingAllLocations ? '' : activeLocationId)
   const monthLabel = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()
 
@@ -273,18 +255,18 @@ export function RentView() {
             COMMISSION HISTORY
           </div>
           <div style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--copper-dark)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-            <div className="grid" style={{ gridTemplateColumns: '160px 130px 130px 130px 140px', borderBottom: '1px solid var(--copper-dark)' }}>
+            <div className="grid" style={{ gridTemplateColumns: '140px 110px 120px 110px 1fr', borderBottom: '1px solid var(--copper-dark)' }}>
               <div style={colHeader}>PERIOD</div>
               <div style={colHeader}>GROSS</div>
               <div style={colHeader}>COMMISSION</div>
               <div style={colHeader}>NET</div>
-              <div style={colHeader}>PAID</div>
+              <div style={{ ...colHeader, textAlign: 'right' }}>PAID</div>
             </div>
             {commissionHistory.map((c, i) => (
               <div
                 key={c.id}
                 className="grid items-center"
-                style={{ gridTemplateColumns: '160px 130px 130px 130px 140px', borderBottom: i === commissionHistory.length - 1 ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
+                style={{ gridTemplateColumns: '140px 110px 120px 110px 1fr', borderBottom: i === commissionHistory.length - 1 ? 'none' : '1px solid rgba(107,46,18,0.25)' }}
               >
                 <div style={{ padding: '12px', fontFamily: 'var(--font-body)', color: 'var(--text-primary)', fontSize: '13px' }}>
                   {formatPeriod(c.period_month)}
@@ -298,15 +280,24 @@ export function RentView() {
                 <div style={{ padding: '12px', fontFamily: 'var(--font-mono)', color: 'var(--gold-base)', fontSize: '13px', fontWeight: 'bold' }}>
                   {formatMoney(c.net_revenue)}
                 </div>
-                <div style={{ padding: '12px' }}>
-                  <label className="flex items-center gap-2" style={{ cursor: 'pointer', opacity: togglingId === c.id ? 0.5 : 1 }}>
+                <div className="flex items-center justify-between" style={{ padding: '12px', gap: '16px' }}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setLetterPayment(c)}
+                    style={{ borderColor: 'var(--copper-dark)', color: 'var(--text-muted)', flexShrink: 0 }}
+                  >
+                    <FileText size={13} />
+                    Generate Payment
+                  </Button>
+                  <label className="flex items-center gap-2" style={{ cursor: 'pointer', opacity: togglingId === c.id ? 0.5 : 1, flexShrink: 0 }}>
                     <input
                       type="checkbox"
                       checked={c.paid}
                       disabled={togglingId === c.id}
                       onChange={() => handleTogglePaid(c)}
                     />
-                    <span style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.08em', color: c.paid ? 'var(--patina-light)' : 'var(--text-muted)' }}>
+                    <span style={{ fontFamily: 'var(--font-heading)', fontSize: '10px', letterSpacing: '0.08em', color: c.paid ? 'var(--patina-light)' : 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                       {c.paid && c.paid_date ? `PAID ${formatDate(c.paid_date)}` : 'UNPAID'}
                     </span>
                   </label>
@@ -325,6 +316,14 @@ export function RentView() {
           locationId={activeLocationId}
           onSave={fetchAgreements}
           onClose={() => setShowForm(false)}
+        />
+      )}
+
+      {letterPayment && activeLocation && (
+        <CommissionLetterModal
+          payment={letterPayment}
+          location={activeLocation}
+          onClose={() => setLetterPayment(null)}
         />
       )}
     </div>

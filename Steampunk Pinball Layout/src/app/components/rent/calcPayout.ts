@@ -20,6 +20,34 @@ export function describeAgreementShort(agreement: AgreementTerms | null): string
   return `$${(agreement.flat_fee_amount ?? 0).toFixed(0)} + ${((agreement.percentage_rate ?? 0) * 100).toFixed(1)}%`
 }
 
+function formatMoneyPlain(v: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(v)
+}
+
+function formatRate(v: number) {
+  return (v * 100).toFixed(2).replace(/\.?0+$/, '') + '%'
+}
+
+// Full plain-language description of an agreement's terms, e.g. "$750 flat
+// fee + 20% of gross revenue above $2,500" — used both on the Commission
+// page and on generated payout letters.
+export function describeAgreement(agreement: AgreementTerms | null): string {
+  if (!agreement) return 'No agreement on file for this period'
+  if (agreement.type === 'flat_fee') {
+    return `${formatMoneyPlain(agreement.flat_fee_amount ?? 0)} flat fee per collection period`
+  }
+  if (agreement.type === 'percentage') {
+    return `${formatRate(agreement.percentage_rate ?? 0)} of gross revenue`
+  }
+  const parts = [`${formatMoneyPlain(agreement.flat_fee_amount ?? 0)} flat fee`]
+  if (agreement.revenue_threshold != null) {
+    parts.push(`+ ${formatRate(agreement.percentage_rate ?? 0)} of gross revenue above ${formatMoneyPlain(agreement.revenue_threshold)}`)
+  } else {
+    parts.push(`+ ${formatRate(agreement.percentage_rate ?? 0)} of gross revenue`)
+  }
+  return parts.join(' ')
+}
+
 type RevenueRow = { location_id: string | null; amount: number }
 
 // Groups revenue rows by location, applies each location's own agreement, and
@@ -161,6 +189,19 @@ export async function ensureCommissionPeriods(): Promise<void> {
 
   if (rows.length === 0) return
   await supabase.from('commission_payments').upsert(rows, { onConflict: 'location_id,period_month', ignoreDuplicates: true })
+}
+
+// Finds whichever agreement was active during a given (already-recorded)
+// commission period and returns its plain-language description — used to
+// render agreement terms on a generated payout letter without storing a
+// redundant copy on commission_payments itself.
+export async function getAgreementDescriptionForPeriod(locationId: string, periodMonth: string): Promise<string> {
+  const { data } = await supabase.from('rent_commission_agreements').select('*').eq('location_id', locationId)
+  const agreements = (data ?? []) as Agreement[]
+  const monthDate = new Date(periodMonth + 'T00:00:00')
+  const monthEndStr = monthEndKey(monthDate)
+  const agreement = agreementActiveInMonth(agreements, periodMonth, monthEndStr)
+  return describeAgreement(agreement)
 }
 
 export async function setCommissionPaid(id: string, paid: boolean): Promise<{ error: unknown }> {

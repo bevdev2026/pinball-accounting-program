@@ -63,9 +63,15 @@
 - [x] Agreement configuration form (flat fee / percentage / combination)
 - [x] Agreement history view
 - [x] Apply active agreement to gross revenue for net revenue calculation (Dashboard) — fixed to be per-location (multiple simultaneous active agreements), added computed current-month payout on the Commission page, a location breakdown table on the Dashboard, and a Net Revenue summary on the Revenue page
-- [ ] Persist monthly commission records per location (`commission_payments` table) — frozen once a completed month's record is created, current month stays live
-- [ ] Mark as Paid action per month per location (paid boolean + paid date)
-- [ ] Commission History table on the Commission page showing past months' gross/commission/net/paid status
+- [x] Persist monthly commission records per location (`commission_payments` table) — frozen once a completed month's record is created, current month stays live
+- [x] Mark as Paid action per month per location (paid boolean + paid date)
+- [x] Commission History table on the Commission page showing past months' gross/commission/net/paid status
+
+### Commission Letter Generator
+- [x] Step 1 — verify data availability: confirmed location name/address (`locations.name`/`address`), period (`commission_payments.period_month`), payout (`commission_amount`) all present; flagged that "total collected" (`gross_revenue`) is machine + non-machine combined (kept as-is, per decision), and agreement terms aren't stored as a phrase (derived at render time from `rent_commission_agreements` instead, no schema change)
+- [x] Step 2 — added a "Generate Payment" button/column to the Commission History table, immediately before the Paid column
+- [x] Step 3 — built the printable letter component (header boilerplate, date, location name/address, period, total collected, agreement in plain terms, payout owed) — plain black-on-white, no colors/images
+- [x] Step 4 — added a Print button (window.print()) with @media print CSS so only the letter prints
 
 ### Liabilities
 - [x] Loan entry form (with live payment preview)
